@@ -2,3 +2,9 @@ curl --location 'https://vpn-test-histdatafeed.vps.com.vn/watchlists/026648' \
 --header 'Content-Type: application/json' \
 --header 'X-Device-New: AFRoLQYKae3J8ovCw+xIioDrzNgmM+byPCXEgkhZLgsZLqe+ONp4RaVkghCPyynJnvddsfcf6H/dWKZgh01aplqtX7UemhyqFdns5tQoNB+SGsGOEkArXc1pBtdg+wmHOciFuvCksdhF9w6TVem0qsJ62ftcqCpw/huOJq0jFlvb5RrtSI+lIBm2gN0f8b8mZUbSUKDluBL/PtVYRw==' \
 --header 'session: c55b70ab-791f-4159-ad3b-80fbb080ed56'
+
+curl --location 'https://vpn-test-histdatafeed.vps.com.vn/watchlists/015238' \
+--header 'Content-Type: application/json' \
+--header 'X-Device-New: TEpcbqTit6nnm3kXqDnI/9HkWCV0Dn9SV3+/umfxwsl3sQycyGUGwRh2j0jFiR4RrBveDqt2JDhehw1dkxTZN9WmpAxk2xtx3/8F4s0Xi4jWCtvSfsXVJebE22nSBNXgIF1xrd889zXKuXVD1fIIV6ETvmgVAIr31BTqeFkBDI42CfP5MB8kSF06Rw7lJo82RKabBC1m5dDlan/ASA==' \
+--header 'X-REQUEST-iD: 6f8a247e-7fb6-4db6-9d5d-b593893c4692' \
+--header 'session: cda47814-3c84-40f4-a503-b950aeded6f6'
