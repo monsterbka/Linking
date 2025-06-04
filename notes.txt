@@ -1,0 +1,4 @@
+curl --location 'https://vpn-test-histdatafeed.vps.com.vn/watchlists/026648' \
+--header 'Content-Type: application/json' \
+--header 'X-Device-New: AFRoLQYKae3J8ovCw+xIioDrzNgmM+byPCXEgkhZLgsZLqe+ONp4RaVkghCPyynJnvddsfcf6H/dWKZgh01aplqtX7UemhyqFdns5tQoNB+SGsGOEkArXc1pBtdg+wmHOciFuvCksdhF9w6TVem0qsJ62ftcqCpw/huOJq0jFlvb5RrtSI+lIBm2gN0f8b8mZUbSUKDluBL/PtVYRw==' \
+--header 'session: c55b70ab-791f-4159-ad3b-80fbb080ed56'
