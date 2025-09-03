@@ -16,8 +16,10 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.functions import (
     col, lit, when, to_timestamp, to_date, cast, 
-    from_json, regexp_replace, current_timestamp
+    from_json, regexp_replace, current_timestamp, explode,
+    udf, collect_list, first, date_format, concat, unix_timestamp
 )
+from pyspark.sql.types import StringType as SparkStringType
 
 class OGGOperationType(Enum):
     """Enum cho các loại operation trong OGG"""
@@ -35,17 +37,106 @@ class OGGCDCProcessor:
     def __init__(self, 
                  spark_session: SparkSession,
                  record_key_field: str = "CUSTOMER_ID",
-                 partition_key_field: Optional[str] = "BATCH_ID"):
+                 partition_key_field: Optional[str] = "BATCH_ID",
+                 json_column: str = "value"):
         """
         Args:
             spark_session: SparkSession instance
             record_key_field: Trường dùng làm record key (primary key)
             partition_key_field: Trường dùng để partition data
+            json_column: Tên column chứa JSON data trong input DataFrame
         """
         self.spark = spark_session
         self.record_key_field = record_key_field
         self.partition_key_field = partition_key_field
+        self.json_column = json_column
+        
+        # Register UDF for parsing OGG records
+        self._register_udfs()
     
+    def _register_udfs(self):
+        """Register UDFs for processing OGG data"""
+        
+        @udf(returnType=StringType())
+        def extract_ogg_metadata(json_str, metadata_field):
+            """Extract metadata from OGG JSON"""
+            try:
+                if not json_str:
+                    return ""
+                record = json.loads(json_str)
+                field_data = record.get(metadata_field, {})
+                return field_data.get('string', '') if isinstance(field_data, dict) else str(field_data)
+            except:
+                return ""
+        
+        @udf(returnType=StringType())
+        def extract_field_value(json_str, section, field_name):
+            """Extract field value from OGG before/after sections"""
+            try:
+                if not json_str:
+                    return None
+                record = json.loads(json_str)
+                row_data = record.get(section, {}).get('row', {})
+                field_data = row_data.get(field_name, {})
+                
+                if isinstance(field_data, dict):
+                    # Extract value with type mapping
+                    for ogg_type, actual_value in field_data.items():
+                        return self._map_ogg_type_to_string(ogg_type, actual_value)
+                return str(field_data) if field_data is not None else None
+            except:
+                return None
+        
+        @udf(returnType=StringType())
+        def get_final_field_value(json_str, field_name):
+            """Get final field value based on operation type"""
+            try:
+                if not json_str:
+                    return None
+                
+                record = json.loads(json_str)
+                op_type = record.get('op_type', {}).get('string', '')
+                
+                before_data = record.get('before', {}).get('row', {})
+                after_data = record.get('after', {}).get('row', {})
+                
+                # Get field from appropriate section
+                if op_type == 'I':  # INSERT - use after
+                    field_data = after_data.get(field_name, {})
+                elif op_type == 'U':  # UPDATE - prefer after, fallback to before
+                    field_data = after_data.get(field_name, before_data.get(field_name, {}))
+                elif op_type == 'D':  # DELETE - use before
+                    field_data = before_data.get(field_name, {})
+                    if field_name == '_is_deleted':
+                        return 'true'
+                else:  # INITIAL or unknown
+                    field_data = after_data.get(field_name, before_data.get(field_name, {}))
+                
+                if isinstance(field_data, dict):
+                    for ogg_type, actual_value in field_data.items():
+                        return self._map_ogg_type_to_string(ogg_type, actual_value)
+                
+                return str(field_data) if field_data is not None else None
+            except Exception as e:
+                return None
+        
+        # Register UDFs
+        self.spark.udf.register("extract_ogg_metadata", extract_ogg_metadata)
+        self.spark.udf.register("extract_field_value", extract_field_value) 
+        self.spark.udf.register("get_final_field_value", get_final_field_value)
+        
+        # Store UDFs as instance variables
+        self.extract_ogg_metadata_udf = extract_ogg_metadata
+        self.extract_field_value_udf = extract_field_value
+        self.get_final_field_value_udf = get_final_field_value
+
+    def _map_ogg_type_to_string(self, ogg_type: str, value: Any) -> str:
+        """Map OGG type to string representation for UDF"""
+        if value is None or value == '':
+            return None
+            
+        return str(value)
+
     def parse_ogg_record(self, ogg_json: Union[str, Dict]) -> Dict[str, Any]:
         """
         Parse single OGG CDC record từ JSON
@@ -221,63 +312,89 @@ class OGGCDCProcessor:
         
         else:  # INITIAL hoặc unknown
             return after if after else before
-    
-    def _infer_spark_schema(self, sample_records: List[Dict[str, Any]]) -> StructType:
+
+    def _discover_schema_from_dataframe(self, input_df: DataFrame, sample_size: int = 1000) -> Dict[str, str]:
         """
-        Infer PySpark schema từ sample records với OGG type mapping
+        Discover schema từ sample records trong DataFrame
         
         Args:
-            sample_records: List các processed records
+            input_df: Input DataFrame chứa JSON records
+            sample_size: Số records để sample cho schema discovery
             
         Returns:
-            StructType schema cho PySpark DataFrame
+            Dictionary mapping field_name -> spark_type_string
         """
-        fields = []
+        # Sample records để phân tích schema
+        sample_records = input_df.limit(sample_size).collect()
         
-        # Collect all field names và types
         all_fields = {}
         
-        for record in sample_records:
-            for field_name, value in record.items():
-                if field_name not in all_fields:
-                    all_fields[field_name] = self._infer_spark_type(value)
+        for row in sample_records:
+            json_str = row[self.json_column]
+            if not json_str:
+                continue
+                
+            try:
+                record = json.loads(json_str)
+                
+                # Extract fields từ before và after sections
+                for section in ['before', 'after']:
+                    row_data = record.get(section, {}).get('row', {})
+                    for field_name, value_wrapper in row_data.items():
+                        if field_name not in all_fields:
+                            if isinstance(value_wrapper, dict):
+                                for ogg_type, actual_value in value_wrapper.items():
+                                    spark_type = self._get_spark_type_string(ogg_type, actual_value)
+                                    all_fields[field_name] = spark_type
+                                    break
+                            else:
+                                all_fields[field_name] = "string"
+            except Exception as e:
+                continue
         
-        # Create StructFields
-        for field_name, spark_type in all_fields.items():
-            fields.append(StructField(field_name, spark_type, True))
-        
-        return StructType(fields)
+        return all_fields
     
-    def _infer_spark_type(self, value: Any):
-        """Infer PySpark DataType từ Python value"""
-        if value is None:
-            return StringType()
-        elif isinstance(value, bool):
-            return BooleanType()
-        elif isinstance(value, int):
-            return LongType()
-        elif isinstance(value, float):
-            return DoubleType()
-        elif isinstance(value, (bytes, bytearray)):
-            return BinaryType()
-        elif isinstance(value, list):
-            return ArrayType(StringType())
-        elif isinstance(value, dict):
-            return MapType(StringType(), StringType())
+    def _get_spark_type_string(self, ogg_type: str, value: Any) -> str:
+        """Get Spark SQL type string cho casting"""
+        ogg_type_lower = ogg_type.lower()
+        
+        if ogg_type_lower in ['int', 'integer', 'smallint', 'tinyint', 'mediumint']:
+            return "int"
+        elif ogg_type_lower in ['long', 'bigint', 'int8', 'number', 'serial', 'bigserial']:
+            return "long"
+        elif ogg_type_lower in ['float', 'real', 'float4']:
+            return "float"
+        elif ogg_type_lower in ['double', 'double precision', 'float8', 'binary_double']:
+            return "double"
+        elif ogg_type_lower in ['decimal', 'numeric', 'money', 'smallmoney']:
+            return "decimal(38,10)"
+        elif ogg_type_lower in ['boolean', 'bool', 'bit']:
+            return "boolean"
+        elif ogg_type_lower in ['date']:
+            return "date"
+        elif ogg_type_lower in ['datetime', 'datetime2', 'smalldatetime',
+                              'timestamp', 'timestamp_ltz', 'timestamp_ntz', 
+                              'timestamptz']:
+            return "timestamp"
+        elif ogg_type_lower in ['binary', 'varbinary', 'longvarbinary', 'blob',
+                              'longblob', 'mediumblob', 'tinyblob', 'image',
+                              'raw', 'long raw', 'bytea']:
+            return "binary"
         else:
-            return StringType()
+            return "string"
     
-    def to_spark_dataframe(self, ogg_records: List[Union[str, Dict]]) -> DataFrame:
+    def to_spark_dataframe(self, input_df: DataFrame) -> DataFrame:
         """
-        Chuyển đổi list OGG records thành PySpark DataFrame
+        Chuyển đổi DataFrame chứa OGG JSON records thành flattened DataFrame
         
         Args:
-            ogg_records: List các OGG CDC records
+            input_df: DataFrame chứa JSON records từ Kafka sink connector
+                     Expected schema: có column chứa JSON string (default: 'value')
             
         Returns:
-            PySpark DataFrame với data đã được typed và processed
+            PySpark DataFrame với data đã được flattened và typed
         """
-        if not ogg_records:
+        if input_df.count() == 0:
             # Return empty DataFrame với basic schema
             schema = StructType([
                 StructField("_ogg_table", StringType(), True),
@@ -288,35 +405,62 @@ class OGGCDCProcessor:
             ])
             return self.spark.createDataFrame([], schema)
         
-        processed_records = []
+        # Check if json_column exists
+        if self.json_column not in input_df.columns:
+            raise ValueError(f"Column '{self.json_column}' not found in input DataFrame. Available columns: {input_df.columns}")
         
-        for record in ogg_records:
-            parsed = self.parse_ogg_record(record)
+        # Discover schema từ sample data
+        field_schema = self._discover_schema_from_dataframe(input_df)
+        
+        # Start với metadata columns
+        result_df = input_df.withColumn(
+            "_ogg_table", 
+            self.extract_ogg_metadata_udf(col(self.json_column), lit("table"))
+        ).withColumn(
+            "_ogg_operation",
+            self.extract_ogg_metadata_udf(col(self.json_column), lit("op_type"))
+        ).withColumn(
+            "_ogg_op_timestamp",
+            self.extract_ogg_metadata_udf(col(self.json_column), lit("op_ts"))
+        ).withColumn(
+            "_ogg_current_timestamp", 
+            self.extract_ogg_metadata_udf(col(self.json_column), lit("current_ts"))
+        ).withColumn(
+            "_ogg_position",
+            self.extract_ogg_metadata_udf(col(self.json_column), lit("pos"))
+        )
+        
+        # Add business fields
+        for field_name, spark_type in field_schema.items():
+            result_df = result_df.withColumn(
+                field_name,
+                self.get_final_field_value_udf(col(self.json_column), lit(field_name))
+            )
             
-            # Tạo flat record
-            flat_record = parsed['final_record'].copy()
-            
-            # Thêm metadata
-            flat_record.update({
-                '_ogg_table': parsed['metadata']['table_name'],
-                '_ogg_operation': parsed['metadata']['operation_type'],
-                '_ogg_op_timestamp': parsed['metadata']['operation_timestamp'],
-                '_ogg_current_timestamp': parsed['metadata']['current_timestamp'],
-                '_ogg_position': parsed['metadata']['position']
-            })
-            
-            processed_records.append(flat_record)
+            # Cast to appropriate type
+            if spark_type != "string":
+                try:
+                    result_df = result_df.withColumn(
+                        field_name,
+                        col(field_name).cast(spark_type)
+                    )
+                except:
+                    # If casting fails, keep as string
+                    pass
         
-        # Infer schema
-        schema = self._infer_spark_schema(processed_records)
+        # Add _is_deleted flag for DELETE operations
+        result_df = result_df.withColumn(
+            "_is_deleted",
+            when(col("_ogg_operation") == "D", lit(True)).otherwise(lit(False))
+        )
         
-        # Create DataFrame
-        df = self.spark.createDataFrame(processed_records, schema)
+        # Drop original JSON column
+        result_df = result_df.drop(self.json_column)
         
-        # Apply type optimizations
-        df = self._optimize_spark_dataframe_types(df)
+        # Optimize types
+        result_df = self._optimize_spark_dataframe_types(result_df)
         
-        return df
+        return result_df
     
     def _optimize_spark_dataframe_types(self, df: DataFrame) -> DataFrame:
         """
@@ -439,12 +583,58 @@ class OGGCDCProcessor:
         
         return delta_df
     
-    def get_table_schema_spark(self, sample_records: List[Union[str, Dict]]) -> Dict[str, Dict[str, str]]:
+    def _infer_spark_schema(self, sample_records: List[Dict[str, Any]]) -> StructType:
         """
-        Phân tích schema từ sample records với OGG type mapping cho PySpark
+        Infer PySpark schema từ sample records với OGG type mapping
         
         Args:
-            sample_records: Sample OGG records để phân tích schema
+            sample_records: List các processed records
+            
+        Returns:
+            StructType schema cho PySpark DataFrame
+        """
+        fields = []
+        
+        # Collect all field names và types
+        all_fields = {}
+        
+        for record in sample_records:
+            for field_name, value in record.items():
+                if field_name not in all_fields:
+                    all_fields[field_name] = self._infer_spark_type(value)
+        
+        # Create StructFields
+        for field_name, spark_type in all_fields.items():
+            fields.append(StructField(field_name, spark_type, True))
+        
+        return StructType(fields)
+    
+    def _infer_spark_type(self, value: Any):
+        """Infer PySpark DataType từ Python value"""
+        if value is None:
+            return StringType()
+        elif isinstance(value, bool):
+            return BooleanType()
+        elif isinstance(value, int):
+            return LongType()
+        elif isinstance(value, float):
+            return DoubleType()
+        elif isinstance(value, (bytes, bytearray)):
+            return BinaryType()
+        elif isinstance(value, list):
+            return ArrayType(StringType())
+        elif isinstance(value, dict):
+            return MapType(StringType(), StringType())
+        else:
+            return StringType()
+    
+    def get_table_schema_spark(self, input_df: DataFrame, sample_size: int = 1000) -> Dict[str, Dict[str, str]]:
+        """
+        Phân tích schema từ DataFrame với OGG type mapping cho PySpark
+        
+        Args:
+            input_df: Input DataFrame chứa OGG records
+            sample_size: Sample size để phân tích schema
             
         Returns:
             Dictionary với structure:
@@ -456,37 +646,41 @@ class OGGCDCProcessor:
                 }
             }
         """
-        if not sample_records:
+        if input_df.count() == 0:
             return {}
         
         schema = {}
         
+        # Sample records để phân tích
+        sample_records = input_df.limit(sample_size).collect()
+        
         # Collect tất cả field types từ sample records
-        for record in sample_records:
-            parsed = self.parse_ogg_record(record)
-            
-            # Get raw row data để extract original types
-            if isinstance(record, str):
-                record_dict = json.loads(record)
-            else:
-                record_dict = record
+        for row in sample_records:
+            json_str = row[self.json_column]
+            if not json_str:
+                continue
                 
-            for section in ['before', 'after']:
-                row_data = record_dict.get(section, {}).get('row', {})
-                for field_name, value_wrapper in row_data.items():
-                    if isinstance(value_wrapper, dict):
-                        for ogg_type, actual_value in value_wrapper.items():
-                            if field_name not in schema:
-                                python_type = self._get_python_type_name(ogg_type, actual_value)
-                                spark_type = self._get_spark_type_name(ogg_type, actual_value)
-                                
-                                schema[field_name] = {
-                                    'ogg_type': ogg_type,
-                                    'python_type': python_type,
-                                    'spark_type': spark_type,
-                                    'sample_value': actual_value
-                                }
-                            break
+            try:
+                record_dict = json.loads(json_str)
+                
+                for section in ['before', 'after']:
+                    row_data = record_dict.get(section, {}).get('row', {})
+                    for field_name, value_wrapper in row_data.items():
+                        if isinstance(value_wrapper, dict):
+                            for ogg_type, actual_value in value_wrapper.items():
+                                if field_name not in schema:
+                                    python_type = self._get_python_type_name(ogg_type, actual_value)
+                                    spark_type = self._get_spark_type_name(ogg_type, actual_value)
+                                    
+                                    schema[field_name] = {
+                                        'ogg_type': ogg_type,
+                                        'python_type': python_type,
+                                        'spark_type': spark_type,
+                                        'sample_value': actual_value
+                                    }
+                                break
+            except Exception as e:
+                continue
         
         return schema
     
@@ -600,78 +794,118 @@ def create_hudi_upsert_config(table_name: str,
         'hoodie.datasource.write.table.type': 'COPY_ON_WRITE'
     }
 
+def create_delta_merge_condition(record_key_field: str) -> str:
+    """
+    Tạo merge condition cho Delta Lake
+    
+    Args:
+        record_key_field: Primary key field name
+        
+    Returns:
+        SQL merge condition string
+    """
+    return f"target.{record_key_field} = source.{record_key_field}"
+
+def create_kafka_source_dataframe(spark: SparkSession, 
+                                kafka_bootstrap_servers: str,
+                                topic: str,
+                                starting_offsets: str = "earliest") -> DataFrame:
+    """
+    Tạo streaming DataFrame từ Kafka source
+    
+    Args:
+        spark: SparkSession
+        kafka_bootstrap_servers: Kafka bootstrap servers
+        topic: Kafka topic name
+        starting_offsets: Starting offset position
+        
+    Returns:
+        Streaming DataFrame
+    """
+    return spark \
+        .readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
+        .option("subscribe", topic) \
+        .option("startingOffsets", starting_offsets) \
+        .load() \
+        .select(col("value").cast("string").alias("value"))
+
 # Example usage
 if __name__ == "__main__":
-    from pyspark.sql.functions import date_format, concat, unix_timestamp
-    
     # Tạo Spark session
     spark = SparkSession.builder \
-        .appName("OGGCDCProcessor") \
+        .appName("OGGCDCProcessor_DataFrame") \
         .config("spark.sql.adaptive.enabled", "true") \
         .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
         .getOrCreate()
     
-    # Sample OGG CDC data với comprehensive types
-    sample_ogg_record = {
-        "table": {"string": "LOGMINER.COMPREHENSIVE_TABLE"},
-        "op_type": {"string": "U"},
-        "op_ts": {"string": "2025-08-27 13:53:01.035610"},
-        "current_ts": {"string": "2025-08-27 13:54:15.887000"},
-        "pos": {"string": "00000000000000029346"},
-        "before": {
-            "row": {
-                "CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"},
-                "ACCOUNT_NUMBER": {"varchar": "ACC454696"},
-                "RISK_SCORE": {"long": 10},
-                "CREDIT_LIMIT": {"double": 50000.75},
-                "IS_ACTIVE": {"boolean": True},
-                "CREATE_DATE": {"date": "2023-01-15"},
-                "LAST_UPDATE": {"timestamp": "2025-08-27 13:53:01.035610"},
-                "JSON_DATA": {"json": '{"key": "value"}'},
-                "BATCH_ID": {"string": "f1256990-60f0-4621-9f84-0ffef385a1c6"},
-                "NOTETT": {"string": "ABCD"}
-            }
-        },
-        "after": {
-            "row": {
-                "CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"},
-                "RISK_SCORE": {"long": 15},
-                "CREDIT_LIMIT": {"double": 75000.50},
-                "IS_ACTIVE": {"boolean": False},
-                "NOTETT": {"string": "ABCDE"}
-            }
-        }
-    }
+    # Sample data - tạo DataFrame từ file hoặc Kafka
+    sample_data = [
+        ('{"table": {"string": "LOGMINER.COMPREHENSIVE_TABLE"}, "op_type": {"string": "U"}, "op_ts": {"string": "2025-08-27 13:53:01.035610"}, "current_ts": {"string": "2025-08-27 13:54:15.887000"}, "pos": {"string": "00000000000000029346"}, "before": {"row": {"CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"}, "ACCOUNT_NUMBER": {"varchar": "ACC454696"}, "RISK_SCORE": {"long": 10}, "CREDIT_LIMIT": {"double": 50000.75}, "IS_ACTIVE": {"boolean": true}, "CREATE_DATE": {"date": "2023-01-15"}, "LAST_UPDATE": {"timestamp": "2025-08-27 13:53:01.035610"}, "JSON_DATA": {"json": "{\\"key\\": \\"value\\"}"}, "BATCH_ID": {"string": "f1256990-60f0-4621-9f84-0ffef385a1c6"}, "NOTETT": {"string": "ABCD"}}}, "after": {"row": {"CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"}, "RISK_SCORE": {"long": 15}, "CREDIT_LIMIT": {"double": 75000.50}, "IS_ACTIVE": {"boolean": false}, "NOTETT": {"string": "ABCDE"}}}}',),
+        ('{"table": {"string": "LOGMINER.COMPREHENSIVE_TABLE"}, "op_type": {"string": "I"}, "op_ts": {"string": "2025-08-27 13:55:01.035610"}, "current_ts": {"string": "2025-08-27 13:55:15.887000"}, "pos": {"string": "00000000000000029347"}, "before": {}, "after": {"row": {"CUSTOMER_ID": {"string": "44d48cdc-0f51-4fcd-a7aa-28711fdb2443"}, "ACCOUNT_NUMBER": {"varchar": "ACC454697"}, "RISK_SCORE": {"long": 20}, "CREDIT_LIMIT": {"double": 100000.00}, "IS_ACTIVE": {"boolean": true}, "CREATE_DATE": {"date": "2023-01-16"}, "LAST_UPDATE": {"timestamp": "2025-08-27 13:55:01.035610"}, "JSON_DATA": {"json": "{\\"key\\": \\"new_value\\"}"}, "BATCH_ID": {"string": "f1256990-60f0-4621-9f84-0ffef385a1c7"}, "NOTETT": {"string": "NEW"}}}}',)
+    ]
     
-    # Khởi tạo processor
+    # Tạo input DataFrame (giống như từ Kafka sink connector hoặc file)
+    input_schema = StructType([
+        StructField("value", StringType(), True)
+    ])
+    input_df = spark.createDataFrame(sample_data, input_schema)
+    
+    print("=== INPUT DATAFRAME ===")
+    print(f"Input row count: {input_df.count()}")
+    input_df.show(truncate=False)
+    
+    # Khởi tạo processor với DataFrame input
     processor = OGGCDCProcessor(
         spark_session=spark,
         record_key_field="CUSTOMER_ID",
-        partition_key_field="BATCH_ID"
+        partition_key_field="BATCH_ID",
+        json_column="value"  # Column name chứa JSON data
     )
     
-    # Convert to PySpark DataFrame
-    df = processor.to_spark_dataframe([sample_ogg_record])
+    # Convert DataFrame to flattened DataFrame
+    flattened_df = processor.to_spark_dataframe(input_df)
     
-    print("=== PYSPARK DATAFRAME INFO ===")
-    print(f"Row count: {df.count()}")
-    print(f"Column count: {len(df.columns)}")
+    print("\n=== FLATTENED DATAFRAME INFO ===")
+    print(f"Row count: {flattened_df.count()}")
+    print(f"Column count: {len(flattened_df.columns)}")
     
     print("\n=== SCHEMA ===")
-    df.printSchema()
+    flattened_df.printSchema()
     
     print("\n=== SAMPLE DATA ===")
-    df.select("CUSTOMER_ID", "RISK_SCORE", "CREDIT_LIMIT", "IS_ACTIVE", "_ogg_operation").show(truncate=False)
+    flattened_df.select("CUSTOMER_ID", "RISK_SCORE", "CREDIT_LIMIT", "IS_ACTIVE", 
+                       "_ogg_operation", "_ogg_table", "_is_deleted").show(truncate=False)
     
-    # Schema analysis
-    schema = processor.get_table_schema_spark([sample_ogg_record])
+    # Schema analysis từ DataFrame
+    schema = processor.get_table_schema_spark(input_df)
     print(f"\n=== SCHEMA ANALYSIS ===")
     for field, type_info in schema.items():
         print(f"{field:<20}: {type_info['ogg_type']:<10} → {type_info['spark_type']}")
     
     # Prepare for Hudi
-    hudi_df = processor.prepare_for_hudi(df)
+    hudi_df = processor.prepare_for_hudi(flattened_df)
     print(f"\n=== HUDI-READY DATAFRAME ===")
     print("Hudi columns:")
     hudi_cols = [col for col in hudi_df.columns if col.startswith('_hoodie_')]
-    hudi_df.select(*hudi
+    print(hudi_cols)
+    hudi_df.select("CUSTOMER_ID", "_hoodie_record_key", "_hoodie_partition_path", 
+                  "_hoodie_commit_seqno").show(truncate=False)
+    
+    # Prepare for Delta
+    delta_df = processor.prepare_for_delta(flattened_df)
+    print(f"\n=== DELTA-READY DATAFRAME ===")
+    delta_df.select("CUSTOMER_ID", "_delta_operation", "_ogg_op_timestamp").show(truncate=False)
+    
+    # Example: Write to Hudi (commented out - requires Hudi dependencies)
+    # hudi_config = create_hudi_upsert_config("comprehensive_table")
+    # hudi_df.write.format("hudi").options(**hudi_config).mode("append").save("/path/to/hudi/table")
+    
+    # Example: Streaming from Kafka (commented out)
+    # kafka_df = create_kafka_source_dataframe(spark, "localhost:9092", "ogg-cdc-topic")
+    # streaming_query = processor.to_spark_dataframe(kafka_df).writeStream.outputMode("append").format("console").start()
+    # streaming_query.awaitTermination()
+    
+    spark.stop()
+                              '
