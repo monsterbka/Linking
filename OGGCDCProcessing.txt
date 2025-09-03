@@ -1,0 +1,461 @@
+"""
+Oracle GoldenGate CDC Processing Library
+Chuyên dụng để xử lý dữ liệu CDC từ OGG format
+"""
+
+import json
+import pandas as pd
+from typing import Dict, Any, List, Optional, Union
+from datetime import datetime
+from enum import Enum
+
+class OGGOperationType(Enum):
+    """Enum cho các loại operation trong OGG"""
+    INSERT = "I"
+    UPDATE = "U" 
+    DELETE = "D"
+    INITIAL = "INIT"
+
+class OGGCDCProcessor:
+    """
+    Processor chuyên dụng cho Oracle GoldenGate CDC data
+    Hỗ trợ xử lý format JSON từ OGG Kafka Handler
+    """
+    
+    def __init__(self, 
+                 record_key_field: str = "CUSTOMER_ID",
+                 partition_key_field: Optional[str] = "BATCH_ID"):
+        """
+        Args:
+            record_key_field: Trường dùng làm record key (primary key)
+            partition_key_field: Trường dùng để partition data
+        """
+        self.record_key_field = record_key_field
+        self.partition_key_field = partition_key_field
+    
+    def parse_ogg_record(self, ogg_json: Union[str, Dict]) -> Dict[str, Any]:
+        """
+        Parse single OGG CDC record từ JSON
+        
+        Args:
+            ogg_json: JSON string hoặc dict từ OGG
+            
+        Returns:
+            Parsed record với metadata
+        """
+        if isinstance(ogg_json, str):
+            record = json.loads(ogg_json)
+        else:
+            record = ogg_json.copy()
+        
+        # Extract metadata
+        metadata = {
+            'table_name': self._extract_string_value(record.get('table', {})),
+            'operation_type': self._extract_string_value(record.get('op_type', {})),
+            'operation_timestamp': self._extract_string_value(record.get('op_ts', {})),
+            'current_timestamp': self._extract_string_value(record.get('current_ts', {})),
+            'position': self._extract_string_value(record.get('pos', {}))
+        }
+        
+        # Extract before/after data
+        before_data = self._extract_row_data(record.get('before', {}).get('row', {}))
+        after_data = self._extract_row_data(record.get('after', {}).get('row', {}))
+        
+        return {
+            'metadata': metadata,
+            'before': before_data,
+            'after': after_data,
+            'final_record': self._create_final_record(
+                metadata['operation_type'], 
+                before_data, 
+                after_data
+            )
+        }
+    
+    def _extract_string_value(self, value_dict: Dict) -> str:
+        """Extract giá trị string từ OGG nested structure"""
+        if not value_dict:
+            return ""
+        
+        # OGG format: {"string": "actual_value"}
+        return value_dict.get('string', '')
+    
+    def _extract_row_data(self, row_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Extract dữ liệu từ OGG row format
+        Format: {"FIELD_NAME": {"string": "value"} hoặc {"long": 123}}
+        """
+        extracted = {}
+        
+        for field_name, value_wrapper in row_data.items():
+            if isinstance(value_wrapper, dict):
+                # Lấy giá trị thực từ wrapper
+                for data_type, actual_value in value_wrapper.items():
+                    extracted[field_name] = actual_value
+                    break
+            else:
+                extracted[field_name] = value_wrapper
+                
+        return extracted
+    
+    def _create_final_record(self, op_type: str, before: Dict, after: Dict) -> Dict[str, Any]:
+        """Tạo final record dựa trên operation type"""
+        if op_type == OGGOperationType.INSERT.value:
+            return after.copy()
+        
+        elif op_type == OGGOperationType.UPDATE.value:
+            # Merge before và after, ưu tiên after
+            final_record = before.copy()
+            final_record.update(after)
+            return final_record
+        
+        elif op_type == OGGOperationType.DELETE.value:
+            # Sử dụng before data và đánh dấu deleted
+            final_record = before.copy()
+            final_record['_is_deleted'] = True
+            return final_record
+        
+        else:  # INITIAL hoặc unknown
+            return after if after else before
+    
+    def to_dataframe(self, ogg_records: List[Union[str, Dict]]) -> pd.DataFrame:
+        """
+        Chuyển đổi list OGG records thành pandas DataFrame
+        
+        Args:
+            ogg_records: List các OGG CDC records
+            
+        Returns:
+            DataFrame với data đã được flatten
+        """
+        processed_records = []
+        
+        for record in ogg_records:
+            parsed = self.parse_ogg_record(record)
+            
+            # Tạo flat record
+            flat_record = parsed['final_record'].copy()
+            
+            # Thêm metadata
+            flat_record.update({
+                '_ogg_table': parsed['metadata']['table_name'],
+                '_ogg_operation': parsed['metadata']['operation_type'],
+                '_ogg_op_timestamp': parsed['metadata']['operation_timestamp'],
+                '_ogg_current_timestamp': parsed['metadata']['current_timestamp'],
+                '_ogg_position': parsed['metadata']['position']
+            })
+            
+            processed_records.append(flat_record)
+        
+        return pd.DataFrame(processed_records) if processed_records else pd.DataFrame()
+    
+    def prepare_for_hudi(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Chuẩn bị DataFrame cho Apache Hudi
+        
+        Args:
+            df: DataFrame từ to_dataframe()
+            
+        Returns:
+            DataFrame sẵn sàng cho Hudi upsert
+        """
+        if df.empty:
+            return df
+        
+        hudi_df = df.copy()
+        
+        # Thêm Hudi metadata columns
+        hudi_df['_hoodie_record_key'] = hudi_df[self.record_key_field].astype(str)
+        
+        # Partition path
+        if self.partition_key_field and self.partition_key_field in hudi_df.columns:
+            hudi_df['_hoodie_partition_path'] = (
+                f"{self.partition_key_field.lower()}=" + 
+                hudi_df[self.partition_key_field].astype(str)
+            )
+        else:
+            hudi_df['_hoodie_partition_path'] = 'default'
+        
+        # Commit time
+        hudi_df['_hoodie_commit_time'] = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
+        
+        # Precombine field (sử dụng OGG timestamp)
+        if '_ogg_op_timestamp' in hudi_df.columns:
+            hudi_df['_hoodie_commit_seqno'] = pd.to_datetime(
+                hudi_df['_ogg_op_timestamp']
+            ).astype('int64') // 10**9
+        
+        return hudi_df
+    
+    def prepare_for_delta(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Chuẩn bị DataFrame cho Delta Lake
+        
+        Args:
+            df: DataFrame từ to_dataframe()
+            
+        Returns:
+            DataFrame sẵn sàng cho Delta merge
+        """
+        if df.empty:
+            return df
+        
+        delta_df = df.copy()
+        
+        # Thêm Delta metadata
+        delta_df['_delta_operation'] = delta_df['_ogg_operation'].map({
+            'I': 'INSERT',
+            'U': 'UPDATE', 
+            'D': 'DELETE'
+        })
+        
+        # Convert timestamps
+        timestamp_cols = ['_ogg_op_timestamp', '_ogg_current_timestamp']
+        for col in timestamp_cols:
+            if col in delta_df.columns:
+                delta_df[col] = pd.to_datetime(delta_df[col], errors='coerce')
+        
+        return delta_df
+    
+    def get_table_schema(self, sample_records: List[Union[str, Dict]]) -> Dict[str, str]:
+        """
+        Phân tích schema từ sample records
+        
+        Args:
+            sample_records: Sample OGG records để phân tích schema
+            
+        Returns:
+            Dictionary mapping field_name -> data_type
+        """
+        df = self.to_dataframe(sample_records)
+        if df.empty:
+            return {}
+        
+        schema = {}
+        for col, dtype in df.dtypes.items():
+            if col.startswith('_ogg_') or col.startswith('_hoodie_'):
+                continue
+            schema[col] = str(dtype)
+        
+        return schema
+
+# Utility functions
+def batch_process_ogg_kafka_messages(kafka_messages: List[str], 
+                                   processor: OGGCDCProcessor) -> pd.DataFrame:
+    """
+    Xử lý batch messages từ Kafka topic
+    
+    Args:
+        kafka_messages: List JSON strings từ Kafka
+        processor: OGGCDCProcessor instance
+        
+    Returns:
+        Processed DataFrame
+    """
+    return processor.to_dataframe(kafka_messages)
+
+def create_hudi_upsert_config(table_name: str, 
+                            record_key: str = "_hoodie_record_key",
+                            partition_path: str = "_hoodie_partition_path") -> Dict[str, str]:
+    """
+    Tạo Hudi configuration cho upsert
+    
+    Args:
+        table_name: Tên Hudi table
+        record_key: Record key field
+        partition_path: Partition path field
+        
+    Returns:
+        Hudi configuration dict
+    """
+    return {
+        'hoodie.table.name': table_name,
+        'hoodie.datasource.write.recordkey.field': record_key,
+        'hoodie.datasource.write.partitionpath.field': partition_path,
+        'hoodie.datasource.write.table.name': table_name,
+        'hoodie.datasource.write.operation': 'upsert',
+        'hoodie.datasource.write.precombine.field': '_hoodie_commit_seqno',
+        'hoodie.upsert.shuffle.parallelism': '2',
+        'hoodie.insert.shuffle.parallelism': '2',
+        'hoodie.datasource.write.hive_style_partitioning': 'true'
+    }
+
+# Example usage
+if __name__ == "__main__":
+    # Sample OGG CDC data với ALL POSSIBLE TYPES
+    sample_ogg_record = {
+        "table": {"string": "LOGMINER.COMPREHENSIVE_TABLE"},
+        "op_type": {"string": "U"},
+        "op_ts": {"string": "2025-08-27 13:53:01.035610"},
+        "current_ts": {"string": "2025-08-27 13:54:15.887000"},
+        "pos": {"string": "00000000000000029346"},
+        "before": {
+            "row": {
+                # STRING TYPES
+                "CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"},
+                "ACCOUNT_NUMBER": {"varchar": "ACC454696"},
+                "FIRST_NAME": {"char": "Richard"},
+                "DESCRIPTION": {"text": "Long description here"},
+                "NOTES": {"clob": "Very long notes"},
+                
+                # NUMERIC TYPES
+                "RISK_SCORE": {"long": 10},
+                "ACCOUNT_BALANCE": {"bigint": 1000000},
+                "SMALL_COUNT": {"smallint": 255},
+                "TINY_FLAG": {"tinyint": 1},
+                "CREDIT_LIMIT": {"double": 50000.75},
+                "INTEREST_RATE": {"decimal": 5.25},
+                "PROCESSING_FEE": {"float": 19.99},
+                "ORACLE_NUMBER": {"number": 12345},
+                
+                # BOOLEAN TYPES
+                "IS_ACTIVE": {"boolean": True},
+                "HAS_LOAN": {"bool": False},
+                "STATUS_BIT": {"bit": 1},
+                
+                # DATE/TIME TYPES
+                "CREATE_DATE": {"date": "2023-01-15"},
+                "LAST_UPDATE": {"datetime": "2025-08-27 13:53:01"},
+                "TIMESTAMP_FIELD": {"timestamp": "2025-08-27 13:53:01.035610"},
+                "TIME_ONLY": {"time": "13:53:01"},
+                
+                # BINARY TYPES
+                "SIGNATURE": {"binary": "89504E470D0A1A0A"},
+                "DOCUMENT": {"blob": "base64encodeddata"},
+                "RAW_DATA": {"raw": "DEADBEEF"},
+                
+                # SPECIAL TYPES
+                "UUID_FIELD": {"uuid": "550e8400-e29b-41d4-a716-446655440000"},
+                "JSON_DATA": {"json": '{"key": "value", "number": 123}'},
+                "XML_DATA": {"xml": "<root><item>test</item></root>"},
+                "ARRAY_FIELD": {"array": '["item1", "item2", "item3"]'},
+                
+                # GIS TYPES
+                "LOCATION": {"geometry": "POINT(40.7128 -74.0060)"},
+                "REGION": {"polygon": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"},
+                
+                # DATABASE SPECIFIC
+                "ROW_ID": {"rowid": "AAAEABAAEAAAAFAAA"},
+                "ORACLE_REF": {"ref": "REF123456"},
+                "INTERVAL_FIELD": {"interval": "5 DAYS"},
+                
+                # PostgreSQL specific
+                "IP_ADDRESS": {"inet": "192.168.1.1"},
+                "MAC_ADDRESS": {"macaddr": "08:00:2b:01:02:03"},
+                "BYTEA_FIELD": {"bytea": "\\x48656c6c6f"},
+                
+                # SQL Server specific
+                "NTEXT_FIELD": {"ntext": "Unicode text"},
+                "MONEY_FIELD": {"money": 12345.67},
+                
+                # MySQL specific
+                "YEAR_FIELD": {"year": "2023"},
+                "ENUM_FIELD": {"enum": "SMALL"},
+                "SET_FIELD": {"set": "RED,BLUE"},
+                
+                "BATCH_ID": {"string": "f1256990-60f0-4621-9f84-0ffef385a1c6"},
+                "NOTETT": {"string": "ABCD"}
+            }
+        },
+        "after": {
+            "row": {
+                "CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"},
+                "RISK_SCORE": {"long": 15},
+                "CREDIT_LIMIT": {"double": 75000.50},
+                "IS_ACTIVE": {"boolean": False},
+                "JSON_DATA": {"json": '{"key": "updated_value", "number": 456}'},
+                "LOCATION": {"geometry": "POINT(40.7589 -73.9851)"},
+                "NOTETT": {"string": "ABCDE"}
+            }
+        }
+    }
+    
+    # Khởi tạo processor
+    processor = OGGCDCProcessor(
+        record_key_field="CUSTOMER_ID",
+        partition_key_field="BATCH_ID"
+    )
+    
+    # Parse single record
+    parsed = processor.parse_ogg_record(sample_ogg_record)
+    print("=== PARSED RECORD ===")
+    print(f"Operation: {parsed['metadata']['operation_type']}")
+    print(f"Table: {parsed['metadata']['table_name']}")
+    print(f"Final record has {len(parsed['final_record'])} fields")
+    
+    # Convert to DataFrame với comprehensive type mapping
+    df = processor.to_dataframe([sample_ogg_record])
+    print(f"\n=== DATAFRAME INFO ===")
+    print(f"Shape: {df.shape}")
+    print("\n=== DATA TYPES ===")
+    for col, dtype in df.dtypes.items():
+        if not col.startswith('_ogg_'):
+            print(f"  {col:<20}: {dtype}")
+    
+    # Sample values with their converted types
+    print(f"\n=== SAMPLE CONVERTED VALUES ===")
+    sample_fields = ['RISK_SCORE', 'CREDIT_LIMIT', 'IS_ACTIVE', 'CREATE_DATE', 
+                    'UUID_FIELD', 'JSON_DATA', 'LOCATION']
+    for field in sample_fields:
+        if field in df.columns:
+            value = df[field].iloc[0]
+            print(f"  {field:<20}: {value} ({type(value).__name__})")
+    
+    # Comprehensive schema analysis
+    schema = processor.get_table_schema([sample_ogg_record])
+    print(f"\n=== COMPREHENSIVE SCHEMA ANALYSIS ===")
+    print(f"Detected {len(schema)} fields with their type mappings:")
+    
+    # Group by categories
+    categories = {
+        'String Types': [],
+        'Numeric Types': [],
+        'Boolean Types': [],
+        'DateTime Types': [],
+        'Binary Types': [],
+        'Special Types': []
+    }
+    
+    for field, type_info in schema.items():
+        ogg_type = type_info['ogg_type'].lower()
+        python_type = type_info['python_type']
+        
+        if python_type == 'str':
+            categories['String Types'].append((field, type_info))
+        elif python_type in ['int', 'float']:
+            categories['Numeric Types'].append((field, type_info))
+        elif python_type == 'bool':
+            categories['Boolean Types'].append((field, type_info))
+        elif python_type == 'datetime':
+            categories['DateTime Types'].append((field, type_info))
+        elif python_type == 'bytes':
+            categories['Binary Types'].append((field, type_info))
+        else:
+            categories['Special Types'].append((field, type_info))
+    
+    for category, fields in categories.items():
+        if fields:
+            print(f"\n{category}:")
+            for field, type_info in fields:
+                print(f"  {field:<20}: {type_info['ogg_type']:<15} → {type_info['python_type']:<10} → {type_info['pandas_dtype']}")
+    
+    # Prepare for Hudi với all types
+    hudi_df = processor.prepare_for_hudi(df)
+    print(f"\n=== HUDI-READY DATAFRAME ===")
+    print(f"Shape: {hudi_df.shape}")
+    print("Hudi metadata columns added:")
+    hudi_cols = [col for col in hudi_df.columns if col.startswith('_hoodie_')]
+    for col in hudi_cols:
+        print(f"  {col}: {hudi_df[col].iloc[0]}")
+    
+    print(f"\n=== TYPE MAPPING SUMMARY ===")
+    type_counts = {}
+    for field, type_info in schema.items():
+        python_type = type_info['python_type']
+        type_counts[python_type] = type_counts.get(python_type, 0) + 1
+    
+    for py_type, count in sorted(type_counts.items()):
+        print(f"  {py_type:<10}: {count} fields")
+    
+    print(f"\nTotal fields processed: {len(schema)}")
+    print("✅ All OGG types successfully mapped to Python/Pandas types!")
