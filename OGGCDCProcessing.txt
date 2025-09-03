@@ -1,13 +1,23 @@
 """
-Oracle GoldenGate CDC Processing Library
-Chuyên dụng để xử lý dữ liệu CDC từ OGG format
+Oracle GoldenGate CDC Processing Library - PySpark Version
+Chuyên dụng để xử lý dữ liệu CDC từ OGG format với PySpark DataFrame
 """
 
 import json
-import pandas as pd
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 from enum import Enum
+
+from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql.types import (
+    StructType, StructField, StringType, LongType, IntegerType, 
+    FloatType, DoubleType, BooleanType, TimestampType, DateType, 
+    BinaryType, ArrayType, MapType, DecimalType
+)
+from pyspark.sql.functions import (
+    col, lit, when, to_timestamp, to_date, cast, 
+    from_json, regexp_replace, current_timestamp
+)
 
 class OGGOperationType(Enum):
     """Enum cho các loại operation trong OGG"""
@@ -18,18 +28,21 @@ class OGGOperationType(Enum):
 
 class OGGCDCProcessor:
     """
-    Processor chuyên dụng cho Oracle GoldenGate CDC data
+    Processor chuyên dụng cho Oracle GoldenGate CDC data với PySpark
     Hỗ trợ xử lý format JSON từ OGG Kafka Handler
     """
     
     def __init__(self, 
+                 spark_session: SparkSession,
                  record_key_field: str = "CUSTOMER_ID",
                  partition_key_field: Optional[str] = "BATCH_ID"):
         """
         Args:
+            spark_session: SparkSession instance
             record_key_field: Trường dùng làm record key (primary key)
             partition_key_field: Trường dùng để partition data
         """
+        self.spark = spark_session
         self.record_key_field = record_key_field
         self.partition_key_field = partition_key_field
     
@@ -76,27 +89,118 @@ class OGGCDCProcessor:
         """Extract giá trị string từ OGG nested structure"""
         if not value_dict:
             return ""
-        
-        # OGG format: {"string": "actual_value"}
         return value_dict.get('string', '')
     
     def _extract_row_data(self, row_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Extract dữ liệu từ OGG row format
+        Extract dữ liệu từ OGG row format với type mapping cho PySpark
         Format: {"FIELD_NAME": {"string": "value"} hoặc {"long": 123}}
         """
         extracted = {}
         
         for field_name, value_wrapper in row_data.items():
             if isinstance(value_wrapper, dict):
-                # Lấy giá trị thực từ wrapper
-                for data_type, actual_value in value_wrapper.items():
-                    extracted[field_name] = actual_value
+                # Extract value với type mapping
+                for ogg_type, actual_value in value_wrapper.items():
+                    mapped_value = self._map_ogg_type_to_python(ogg_type, actual_value)
+                    extracted[field_name] = mapped_value
                     break
             else:
                 extracted[field_name] = value_wrapper
                 
         return extracted
+    
+    def _map_ogg_type_to_python(self, ogg_type: str, value: Any) -> Any:
+        """
+        Map OGG data types sang Python types cho PySpark DataFrame
+        
+        Args:
+            ogg_type: OGG type từ JSON
+            value: Giá trị gốc
+            
+        Returns:
+            Giá trị đã được convert sang Python type phù hợp cho PySpark
+        """
+        if value is None or value == '':
+            return None
+            
+        ogg_type_lower = ogg_type.lower()
+        
+        try:
+            # STRING TYPES
+            if ogg_type_lower in ['string', 'varchar', 'varchar2', 'char', 'nchar', 
+                                'nvarchar', 'nvarchar2', 'text', 'longtext', 'mediumtext', 
+                                'tinytext', 'clob', 'nclob', 'longvarchar', 'longnvarchar',
+                                'uuid', 'guid', 'uniqueidentifier', 'xml', 'xmltype',
+                                'geometry', 'geography', 'point', 'polygon', 'linestring',
+                                'multipoint', 'multipolygon', 'multilinestring', 'geometrycollection',
+                                'interval', 'interval year to month', 'interval day to second',
+                                'rowid', 'urowid', 'bfile', 'ref', 'inet', 'cidr', 'macaddr',
+                                'tsvector', 'tsquery', 'ntext', 'sql_variant', 'hierarchyid',
+                                'year', 'enum', 'set']:
+                return str(value) if value is not None else None
+            
+            # INTEGER TYPES  
+            elif ogg_type_lower in ['int', 'integer', 'long', 'bigint', 'smallint', 
+                                  'tinyint', 'mediumint', 'int2', 'int4', 'int8',
+                                  'number', 'serial', 'bigserial', 'smallserial']:
+                if isinstance(value, str) and '.' in value:
+                    float_val = float(value)
+                    if float_val.is_integer():
+                        return int(float_val)
+                    else:
+                        return int(float_val)
+                return int(value)
+            
+            # FLOAT/DECIMAL TYPES
+            elif ogg_type_lower in ['float', 'double', 'real', 'decimal', 'numeric', 
+                                  'money', 'smallmoney', 'float4', 'float8',
+                                  'double precision', 'binary_float', 'binary_double']:
+                return float(value)
+            
+            # BOOLEAN TYPES
+            elif ogg_type_lower in ['boolean', 'bool', 'bit']:
+                if isinstance(value, str):
+                    return value.lower() in ('true', '1', 'yes', 'on', 'y', 't')
+                elif isinstance(value, (int, float)):
+                    return bool(value)
+                return bool(value)
+            
+            # DATE/TIME TYPES - keep as string for PySpark processing
+            elif ogg_type_lower in ['date', 'datetime', 'datetime2', 'smalldatetime',
+                                  'timestamp', 'timestamp_ltz', 'timestamp_ntz', 
+                                  'timestamptz', 'time', 'timetz']:
+                return str(value) if value is not None else None
+            
+            # BINARY TYPES
+            elif ogg_type_lower in ['binary', 'varbinary', 'longvarbinary', 'blob',
+                                  'longblob', 'mediumblob', 'tinyblob', 'image',
+                                  'raw', 'long raw', 'bytea']:
+                if isinstance(value, str):
+                    try:
+                        return bytearray.fromhex(value.replace(' ', '').replace('\\x', ''))
+                    except ValueError:
+                        return value.encode('utf-8')
+                return value
+            
+            # JSON TYPES - keep as string for PySpark JSON functions
+            elif ogg_type_lower in ['json', 'jsonb']:
+                return str(value) if value is not None else None
+            
+            # ARRAY TYPES - keep as string for PySpark array functions
+            elif ogg_type_lower in ['array', 'varray']:
+                return str(value) if value is not None else None
+            
+            # DEFAULT: treat as string
+            else:
+                return str(value) if value is not None else None
+                
+        except (ValueError, TypeError, OverflowError) as e:
+            print(f"Warning: Cannot convert value '{value}' of type '{ogg_type}': {str(e)}. Using original value.")
+            return value
+        except Exception as e:
+            print(f"Error: Unexpected error converting value '{value}' of type '{ogg_type}': {str(e)}. Using original value.")
+            return value
     
     def _create_final_record(self, op_type: str, before: Dict, after: Dict) -> Dict[str, Any]:
         """Tạo final record dựa trên operation type"""
@@ -118,16 +222,72 @@ class OGGCDCProcessor:
         else:  # INITIAL hoặc unknown
             return after if after else before
     
-    def to_dataframe(self, ogg_records: List[Union[str, Dict]]) -> pd.DataFrame:
+    def _infer_spark_schema(self, sample_records: List[Dict[str, Any]]) -> StructType:
         """
-        Chuyển đổi list OGG records thành pandas DataFrame
+        Infer PySpark schema từ sample records với OGG type mapping
+        
+        Args:
+            sample_records: List các processed records
+            
+        Returns:
+            StructType schema cho PySpark DataFrame
+        """
+        fields = []
+        
+        # Collect all field names và types
+        all_fields = {}
+        
+        for record in sample_records:
+            for field_name, value in record.items():
+                if field_name not in all_fields:
+                    all_fields[field_name] = self._infer_spark_type(value)
+        
+        # Create StructFields
+        for field_name, spark_type in all_fields.items():
+            fields.append(StructField(field_name, spark_type, True))
+        
+        return StructType(fields)
+    
+    def _infer_spark_type(self, value: Any):
+        """Infer PySpark DataType từ Python value"""
+        if value is None:
+            return StringType()
+        elif isinstance(value, bool):
+            return BooleanType()
+        elif isinstance(value, int):
+            return LongType()
+        elif isinstance(value, float):
+            return DoubleType()
+        elif isinstance(value, (bytes, bytearray)):
+            return BinaryType()
+        elif isinstance(value, list):
+            return ArrayType(StringType())
+        elif isinstance(value, dict):
+            return MapType(StringType(), StringType())
+        else:
+            return StringType()
+    
+    def to_spark_dataframe(self, ogg_records: List[Union[str, Dict]]) -> DataFrame:
+        """
+        Chuyển đổi list OGG records thành PySpark DataFrame
         
         Args:
             ogg_records: List các OGG CDC records
             
         Returns:
-            DataFrame với data đã được flatten
+            PySpark DataFrame với data đã được typed và processed
         """
+        if not ogg_records:
+            # Return empty DataFrame với basic schema
+            schema = StructType([
+                StructField("_ogg_table", StringType(), True),
+                StructField("_ogg_operation", StringType(), True),
+                StructField("_ogg_op_timestamp", StringType(), True),
+                StructField("_ogg_current_timestamp", StringType(), True),
+                StructField("_ogg_position", StringType(), True)
+            ])
+            return self.spark.createDataFrame([], schema)
+        
         processed_records = []
         
         for record in ogg_records:
@@ -147,123 +307,282 @@ class OGGCDCProcessor:
             
             processed_records.append(flat_record)
         
-        return pd.DataFrame(processed_records) if processed_records else pd.DataFrame()
+        # Infer schema
+        schema = self._infer_spark_schema(processed_records)
+        
+        # Create DataFrame
+        df = self.spark.createDataFrame(processed_records, schema)
+        
+        # Apply type optimizations
+        df = self._optimize_spark_dataframe_types(df)
+        
+        return df
     
-    def prepare_for_hudi(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _optimize_spark_dataframe_types(self, df: DataFrame) -> DataFrame:
         """
-        Chuẩn bị DataFrame cho Apache Hudi
+        Optimize PySpark DataFrame types dựa trên data patterns
         
         Args:
-            df: DataFrame từ to_dataframe()
+            df: Raw PySpark DataFrame
+            
+        Returns:
+            DataFrame với optimized types
+        """
+        optimized_df = df
+        
+        # Convert datetime strings to timestamp types
+        datetime_patterns = ['DATE', 'TIME', 'TS', '_TIMESTAMP']
+        
+        for col_name in df.columns:
+            if any(pattern in col_name.upper() for pattern in datetime_patterns):
+                try:
+                    # Try to convert to timestamp
+                    optimized_df = optimized_df.withColumn(
+                        col_name,
+                        to_timestamp(col(col_name))
+                    )
+                except:
+                    # If fails, keep as string
+                    pass
+        
+        return optimized_df
+    
+    def prepare_for_hudi(self, df: DataFrame) -> DataFrame:
+        """
+        Chuẩn bị PySpark DataFrame cho Apache Hudi
+        
+        Args:
+            df: DataFrame từ to_spark_dataframe()
             
         Returns:
             DataFrame sẵn sàng cho Hudi upsert
         """
-        if df.empty:
+        if df.count() == 0:
             return df
         
-        hudi_df = df.copy()
+        hudi_df = df
         
         # Thêm Hudi metadata columns
-        hudi_df['_hoodie_record_key'] = hudi_df[self.record_key_field].astype(str)
+        hudi_df = hudi_df.withColumn(
+            "_hoodie_record_key", 
+            col(self.record_key_field).cast(StringType())
+        )
         
         # Partition path
-        if self.partition_key_field and self.partition_key_field in hudi_df.columns:
-            hudi_df['_hoodie_partition_path'] = (
-                f"{self.partition_key_field.lower()}=" + 
-                hudi_df[self.partition_key_field].astype(str)
+        if self.partition_key_field and self.partition_key_field in df.columns:
+            hudi_df = hudi_df.withColumn(
+                "_hoodie_partition_path",
+                regexp_replace(
+                    concat(lit(f"{self.partition_key_field.lower()}="), 
+                           col(self.partition_key_field).cast(StringType())),
+                    "[^a-zA-Z0-9=_-]", "_"
+                )
             )
         else:
-            hudi_df['_hoodie_partition_path'] = 'default'
+            hudi_df = hudi_df.withColumn("_hoodie_partition_path", lit("default"))
         
         # Commit time
-        hudi_df['_hoodie_commit_time'] = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
+        hudi_df = hudi_df.withColumn(
+            "_hoodie_commit_time",
+            regexp_replace(
+                date_format(current_timestamp(), "yyyyMMddHHmmssSSS"),
+                "[-: ]", ""
+            )
+        )
         
         # Precombine field (sử dụng OGG timestamp)
-        if '_ogg_op_timestamp' in hudi_df.columns:
-            hudi_df['_hoodie_commit_seqno'] = pd.to_datetime(
-                hudi_df['_ogg_op_timestamp']
-            ).astype('int64') // 10**9
+        if '_ogg_op_timestamp' in df.columns:
+            hudi_df = hudi_df.withColumn(
+                "_hoodie_commit_seqno",
+                unix_timestamp(to_timestamp(col('_ogg_op_timestamp')))
+            )
+        else:
+            hudi_df = hudi_df.withColumn(
+                "_hoodie_commit_seqno",
+                unix_timestamp()
+            )
         
         return hudi_df
     
-    def prepare_for_delta(self, df: pd.DataFrame) -> pd.DataFrame:
+    def prepare_for_delta(self, df: DataFrame) -> DataFrame:
         """
-        Chuẩn bị DataFrame cho Delta Lake
+        Chuẩn bị PySpark DataFrame cho Delta Lake
         
         Args:
-            df: DataFrame từ to_dataframe()
+            df: DataFrame từ to_spark_dataframe()
             
         Returns:
             DataFrame sẵn sàng cho Delta merge
         """
-        if df.empty:
+        if df.count() == 0:
             return df
         
-        delta_df = df.copy()
+        delta_df = df
         
         # Thêm Delta metadata
-        delta_df['_delta_operation'] = delta_df['_ogg_operation'].map({
-            'I': 'INSERT',
-            'U': 'UPDATE', 
-            'D': 'DELETE'
-        })
+        delta_df = delta_df.withColumn(
+            "_delta_operation",
+            when(col("_ogg_operation") == "I", lit("INSERT"))
+            .when(col("_ogg_operation") == "U", lit("UPDATE"))
+            .when(col("_ogg_operation") == "D", lit("DELETE"))
+            .otherwise(lit("UPSERT"))
+        )
         
         # Convert timestamps
         timestamp_cols = ['_ogg_op_timestamp', '_ogg_current_timestamp']
-        for col in timestamp_cols:
-            if col in delta_df.columns:
-                delta_df[col] = pd.to_datetime(delta_df[col], errors='coerce')
+        for col_name in timestamp_cols:
+            if col_name in df.columns:
+                delta_df = delta_df.withColumn(
+                    col_name,
+                    to_timestamp(col(col_name))
+                )
         
         return delta_df
     
-    def get_table_schema(self, sample_records: List[Union[str, Dict]]) -> Dict[str, str]:
+    def get_table_schema_spark(self, sample_records: List[Union[str, Dict]]) -> Dict[str, Dict[str, str]]:
         """
-        Phân tích schema từ sample records
+        Phân tích schema từ sample records với OGG type mapping cho PySpark
         
         Args:
             sample_records: Sample OGG records để phân tích schema
             
         Returns:
-            Dictionary mapping field_name -> data_type
+            Dictionary với structure:
+            {
+                'field_name': {
+                    'ogg_type': 'string',
+                    'python_type': 'str',
+                    'spark_type': 'StringType'
+                }
+            }
         """
-        df = self.to_dataframe(sample_records)
-        if df.empty:
+        if not sample_records:
             return {}
         
         schema = {}
-        for col, dtype in df.dtypes.items():
-            if col.startswith('_ogg_') or col.startswith('_hoodie_'):
-                continue
-            schema[col] = str(dtype)
+        
+        # Collect tất cả field types từ sample records
+        for record in sample_records:
+            parsed = self.parse_ogg_record(record)
+            
+            # Get raw row data để extract original types
+            if isinstance(record, str):
+                record_dict = json.loads(record)
+            else:
+                record_dict = record
+                
+            for section in ['before', 'after']:
+                row_data = record_dict.get(section, {}).get('row', {})
+                for field_name, value_wrapper in row_data.items():
+                    if isinstance(value_wrapper, dict):
+                        for ogg_type, actual_value in value_wrapper.items():
+                            if field_name not in schema:
+                                python_type = self._get_python_type_name(ogg_type, actual_value)
+                                spark_type = self._get_spark_type_name(ogg_type, actual_value)
+                                
+                                schema[field_name] = {
+                                    'ogg_type': ogg_type,
+                                    'python_type': python_type,
+                                    'spark_type': spark_type,
+                                    'sample_value': actual_value
+                                }
+                            break
         
         return schema
-
-# Utility functions
-def batch_process_ogg_kafka_messages(kafka_messages: List[str], 
-                                   processor: OGGCDCProcessor) -> pd.DataFrame:
-    """
-    Xử lý batch messages từ Kafka topic
     
-    Args:
-        kafka_messages: List JSON strings từ Kafka
-        processor: OGGCDCProcessor instance
+    def _get_python_type_name(self, ogg_type: str, value: Any) -> str:
+        """Get Python type name cho schema documentation"""
+        ogg_type_lower = ogg_type.lower()
         
-    Returns:
-        Processed DataFrame
-    """
-    return processor.to_dataframe(kafka_messages)
+        if ogg_type_lower in ['string', 'varchar', 'varchar2', 'char', 'nchar', 
+                            'nvarchar', 'nvarchar2', 'text', 'longtext', 'mediumtext', 
+                            'tinytext', 'clob', 'nclob', 'longvarchar', 'longnvarchar',
+                            'uuid', 'guid', 'uniqueidentifier', 'xml', 'xmltype',
+                            'geometry', 'geography', 'point', 'polygon', 'linestring',
+                            'multipoint', 'multipolygon', 'multilinestring', 'geometrycollection',
+                            'interval', 'interval year to month', 'interval day to second',
+                            'rowid', 'urowid', 'bfile', 'ref', 'inet', 'cidr', 'macaddr',
+                            'tsvector', 'tsquery', 'ntext', 'sql_variant', 'hierarchyid',
+                            'year', 'enum', 'set', 'json', 'jsonb', 'array', 'varray']:
+            return 'str'
+        elif ogg_type_lower in ['int', 'integer', 'long', 'bigint', 'smallint', 
+                              'tinyint', 'mediumint', 'int2', 'int4', 'int8',
+                              'number', 'serial', 'bigserial', 'smallserial']:
+            return 'int'
+        elif ogg_type_lower in ['float', 'double', 'real', 'decimal', 'numeric', 
+                              'money', 'smallmoney', 'float4', 'float8',
+                              'double precision', 'binary_float', 'binary_double']:
+            return 'float'
+        elif ogg_type_lower in ['boolean', 'bool', 'bit']:
+            return 'bool'
+        elif ogg_type_lower in ['date', 'datetime', 'datetime2', 'smalldatetime',
+                              'timestamp', 'timestamp_ltz', 'timestamp_ntz', 
+                              'timestamptz', 'time', 'timetz']:
+            return 'datetime'
+        elif ogg_type_lower in ['binary', 'varbinary', 'longvarbinary', 'blob',
+                              'longblob', 'mediumblob', 'tinyblob', 'image',
+                              'raw', 'long raw', 'bytea']:
+            return 'bytes'
+        else:
+            return 'str'
+    
+    def _get_spark_type_name(self, ogg_type: str, value: Any) -> str:
+        """Get PySpark type name cho schema documentation"""
+        ogg_type_lower = ogg_type.lower()
+        
+        if ogg_type_lower in ['string', 'varchar', 'varchar2', 'char', 'nchar', 
+                            'nvarchar', 'nvarchar2', 'text', 'longtext', 'mediumtext', 
+                            'tinytext', 'clob', 'nclob', 'longvarchar', 'longnvarchar',
+                            'uuid', 'guid', 'uniqueidentifier', 'xml', 'xmltype',
+                            'geometry', 'geography', 'point', 'polygon', 'linestring',
+                            'multipoint', 'multipolygon', 'multilinestring', 'geometrycollection',
+                            'interval', 'interval year to month', 'interval day to second',
+                            'rowid', 'urowid', 'bfile', 'ref', 'inet', 'cidr', 'macaddr',
+                            'tsvector', 'tsquery', 'ntext', 'sql_variant', 'hierarchyid',
+                            'year', 'enum', 'set']:
+            return 'StringType'
+        elif ogg_type_lower in ['int', 'integer', 'smallint', 'tinyint', 'mediumint']:
+            return 'IntegerType'
+        elif ogg_type_lower in ['long', 'bigint', 'int8', 'number', 'serial', 'bigserial']:
+            return 'LongType'
+        elif ogg_type_lower in ['float', 'real', 'float4']:
+            return 'FloatType'
+        elif ogg_type_lower in ['double', 'double precision', 'float8', 'binary_double']:
+            return 'DoubleType'
+        elif ogg_type_lower in ['decimal', 'numeric', 'money', 'smallmoney']:
+            return 'DecimalType'
+        elif ogg_type_lower in ['boolean', 'bool', 'bit']:
+            return 'BooleanType'
+        elif ogg_type_lower in ['date']:
+            return 'DateType'
+        elif ogg_type_lower in ['datetime', 'datetime2', 'smalldatetime',
+                              'timestamp', 'timestamp_ltz', 'timestamp_ntz', 
+                              'timestamptz']:
+            return 'TimestampType'
+        elif ogg_type_lower in ['binary', 'varbinary', 'longvarbinary', 'blob',
+                              'longblob', 'mediumblob', 'tinyblob', 'image',
+                              'raw', 'long raw', 'bytea']:
+            return 'BinaryType'
+        elif ogg_type_lower in ['json', 'jsonb']:
+            return 'StringType'  # Will be parsed with from_json later
+        elif ogg_type_lower in ['array', 'varray']:
+            return 'ArrayType(StringType)'
+        else:
+            return 'StringType'
 
+# Utility functions cho PySpark integration
 def create_hudi_upsert_config(table_name: str, 
                             record_key: str = "_hoodie_record_key",
-                            partition_path: str = "_hoodie_partition_path") -> Dict[str, str]:
+                            partition_path: str = "_hoodie_partition_path",
+                            precombine_field: str = "_hoodie_commit_seqno") -> Dict[str, str]:
     """
-    Tạo Hudi configuration cho upsert
+    Tạo Hudi configuration cho upsert với PySpark
     
     Args:
         table_name: Tên Hudi table
         record_key: Record key field
         partition_path: Partition path field
+        precombine_field: Precombine field
         
     Returns:
         Hudi configuration dict
@@ -274,15 +593,25 @@ def create_hudi_upsert_config(table_name: str,
         'hoodie.datasource.write.partitionpath.field': partition_path,
         'hoodie.datasource.write.table.name': table_name,
         'hoodie.datasource.write.operation': 'upsert',
-        'hoodie.datasource.write.precombine.field': '_hoodie_commit_seqno',
+        'hoodie.datasource.write.precombine.field': precombine_field,
         'hoodie.upsert.shuffle.parallelism': '2',
         'hoodie.insert.shuffle.parallelism': '2',
-        'hoodie.datasource.write.hive_style_partitioning': 'true'
+        'hoodie.datasource.write.hive_style_partitioning': 'true',
+        'hoodie.datasource.write.table.type': 'COPY_ON_WRITE'
     }
 
 # Example usage
 if __name__ == "__main__":
-    # Sample OGG CDC data với ALL POSSIBLE TYPES
+    from pyspark.sql.functions import date_format, concat, unix_timestamp
+    
+    # Tạo Spark session
+    spark = SparkSession.builder \
+        .appName("OGGCDCProcessor") \
+        .config("spark.sql.adaptive.enabled", "true") \
+        .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
+        .getOrCreate()
+    
+    # Sample OGG CDC data với comprehensive types
     sample_ogg_record = {
         "table": {"string": "LOGMINER.COMPREHENSIVE_TABLE"},
         "op_type": {"string": "U"},
@@ -291,68 +620,14 @@ if __name__ == "__main__":
         "pos": {"string": "00000000000000029346"},
         "before": {
             "row": {
-                # STRING TYPES
                 "CUSTOMER_ID": {"string": "33d48cdc-0f51-4fcd-a7aa-28711fdb2442"},
                 "ACCOUNT_NUMBER": {"varchar": "ACC454696"},
-                "FIRST_NAME": {"char": "Richard"},
-                "DESCRIPTION": {"text": "Long description here"},
-                "NOTES": {"clob": "Very long notes"},
-                
-                # NUMERIC TYPES
                 "RISK_SCORE": {"long": 10},
-                "ACCOUNT_BALANCE": {"bigint": 1000000},
-                "SMALL_COUNT": {"smallint": 255},
-                "TINY_FLAG": {"tinyint": 1},
                 "CREDIT_LIMIT": {"double": 50000.75},
-                "INTEREST_RATE": {"decimal": 5.25},
-                "PROCESSING_FEE": {"float": 19.99},
-                "ORACLE_NUMBER": {"number": 12345},
-                
-                # BOOLEAN TYPES
                 "IS_ACTIVE": {"boolean": True},
-                "HAS_LOAN": {"bool": False},
-                "STATUS_BIT": {"bit": 1},
-                
-                # DATE/TIME TYPES
                 "CREATE_DATE": {"date": "2023-01-15"},
-                "LAST_UPDATE": {"datetime": "2025-08-27 13:53:01"},
-                "TIMESTAMP_FIELD": {"timestamp": "2025-08-27 13:53:01.035610"},
-                "TIME_ONLY": {"time": "13:53:01"},
-                
-                # BINARY TYPES
-                "SIGNATURE": {"binary": "89504E470D0A1A0A"},
-                "DOCUMENT": {"blob": "base64encodeddata"},
-                "RAW_DATA": {"raw": "DEADBEEF"},
-                
-                # SPECIAL TYPES
-                "UUID_FIELD": {"uuid": "550e8400-e29b-41d4-a716-446655440000"},
-                "JSON_DATA": {"json": '{"key": "value", "number": 123}'},
-                "XML_DATA": {"xml": "<root><item>test</item></root>"},
-                "ARRAY_FIELD": {"array": '["item1", "item2", "item3"]'},
-                
-                # GIS TYPES
-                "LOCATION": {"geometry": "POINT(40.7128 -74.0060)"},
-                "REGION": {"polygon": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"},
-                
-                # DATABASE SPECIFIC
-                "ROW_ID": {"rowid": "AAAEABAAEAAAAFAAA"},
-                "ORACLE_REF": {"ref": "REF123456"},
-                "INTERVAL_FIELD": {"interval": "5 DAYS"},
-                
-                # PostgreSQL specific
-                "IP_ADDRESS": {"inet": "192.168.1.1"},
-                "MAC_ADDRESS": {"macaddr": "08:00:2b:01:02:03"},
-                "BYTEA_FIELD": {"bytea": "\\x48656c6c6f"},
-                
-                # SQL Server specific
-                "NTEXT_FIELD": {"ntext": "Unicode text"},
-                "MONEY_FIELD": {"money": 12345.67},
-                
-                # MySQL specific
-                "YEAR_FIELD": {"year": "2023"},
-                "ENUM_FIELD": {"enum": "SMALL"},
-                "SET_FIELD": {"set": "RED,BLUE"},
-                
+                "LAST_UPDATE": {"timestamp": "2025-08-27 13:53:01.035610"},
+                "JSON_DATA": {"json": '{"key": "value"}'},
                 "BATCH_ID": {"string": "f1256990-60f0-4621-9f84-0ffef385a1c6"},
                 "NOTETT": {"string": "ABCD"}
             }
@@ -363,8 +638,6 @@ if __name__ == "__main__":
                 "RISK_SCORE": {"long": 15},
                 "CREDIT_LIMIT": {"double": 75000.50},
                 "IS_ACTIVE": {"boolean": False},
-                "JSON_DATA": {"json": '{"key": "updated_value", "number": 456}'},
-                "LOCATION": {"geometry": "POINT(40.7589 -73.9851)"},
                 "NOTETT": {"string": "ABCDE"}
             }
         }
@@ -372,90 +645,33 @@ if __name__ == "__main__":
     
     # Khởi tạo processor
     processor = OGGCDCProcessor(
+        spark_session=spark,
         record_key_field="CUSTOMER_ID",
         partition_key_field="BATCH_ID"
     )
     
-    # Parse single record
-    parsed = processor.parse_ogg_record(sample_ogg_record)
-    print("=== PARSED RECORD ===")
-    print(f"Operation: {parsed['metadata']['operation_type']}")
-    print(f"Table: {parsed['metadata']['table_name']}")
-    print(f"Final record has {len(parsed['final_record'])} fields")
+    # Convert to PySpark DataFrame
+    df = processor.to_spark_dataframe([sample_ogg_record])
     
-    # Convert to DataFrame với comprehensive type mapping
-    df = processor.to_dataframe([sample_ogg_record])
-    print(f"\n=== DATAFRAME INFO ===")
-    print(f"Shape: {df.shape}")
-    print("\n=== DATA TYPES ===")
-    for col, dtype in df.dtypes.items():
-        if not col.startswith('_ogg_'):
-            print(f"  {col:<20}: {dtype}")
+    print("=== PYSPARK DATAFRAME INFO ===")
+    print(f"Row count: {df.count()}")
+    print(f"Column count: {len(df.columns)}")
     
-    # Sample values with their converted types
-    print(f"\n=== SAMPLE CONVERTED VALUES ===")
-    sample_fields = ['RISK_SCORE', 'CREDIT_LIMIT', 'IS_ACTIVE', 'CREATE_DATE', 
-                    'UUID_FIELD', 'JSON_DATA', 'LOCATION']
-    for field in sample_fields:
-        if field in df.columns:
-            value = df[field].iloc[0]
-            print(f"  {field:<20}: {value} ({type(value).__name__})")
+    print("\n=== SCHEMA ===")
+    df.printSchema()
     
-    # Comprehensive schema analysis
-    schema = processor.get_table_schema([sample_ogg_record])
-    print(f"\n=== COMPREHENSIVE SCHEMA ANALYSIS ===")
-    print(f"Detected {len(schema)} fields with their type mappings:")
+    print("\n=== SAMPLE DATA ===")
+    df.select("CUSTOMER_ID", "RISK_SCORE", "CREDIT_LIMIT", "IS_ACTIVE", "_ogg_operation").show(truncate=False)
     
-    # Group by categories
-    categories = {
-        'String Types': [],
-        'Numeric Types': [],
-        'Boolean Types': [],
-        'DateTime Types': [],
-        'Binary Types': [],
-        'Special Types': []
-    }
-    
+    # Schema analysis
+    schema = processor.get_table_schema_spark([sample_ogg_record])
+    print(f"\n=== SCHEMA ANALYSIS ===")
     for field, type_info in schema.items():
-        ogg_type = type_info['ogg_type'].lower()
-        python_type = type_info['python_type']
-        
-        if python_type == 'str':
-            categories['String Types'].append((field, type_info))
-        elif python_type in ['int', 'float']:
-            categories['Numeric Types'].append((field, type_info))
-        elif python_type == 'bool':
-            categories['Boolean Types'].append((field, type_info))
-        elif python_type == 'datetime':
-            categories['DateTime Types'].append((field, type_info))
-        elif python_type == 'bytes':
-            categories['Binary Types'].append((field, type_info))
-        else:
-            categories['Special Types'].append((field, type_info))
+        print(f"{field:<20}: {type_info['ogg_type']:<10} → {type_info['spark_type']}")
     
-    for category, fields in categories.items():
-        if fields:
-            print(f"\n{category}:")
-            for field, type_info in fields:
-                print(f"  {field:<20}: {type_info['ogg_type']:<15} → {type_info['python_type']:<10} → {type_info['pandas_dtype']}")
-    
-    # Prepare for Hudi với all types
+    # Prepare for Hudi
     hudi_df = processor.prepare_for_hudi(df)
     print(f"\n=== HUDI-READY DATAFRAME ===")
-    print(f"Shape: {hudi_df.shape}")
-    print("Hudi metadata columns added:")
+    print("Hudi columns:")
     hudi_cols = [col for col in hudi_df.columns if col.startswith('_hoodie_')]
-    for col in hudi_cols:
-        print(f"  {col}: {hudi_df[col].iloc[0]}")
-    
-    print(f"\n=== TYPE MAPPING SUMMARY ===")
-    type_counts = {}
-    for field, type_info in schema.items():
-        python_type = type_info['python_type']
-        type_counts[python_type] = type_counts.get(python_type, 0) + 1
-    
-    for py_type, count in sorted(type_counts.items()):
-        print(f"  {py_type:<10}: {count} fields")
-    
-    print(f"\nTotal fields processed: {len(schema)}")
-    print("✅ All OGG types successfully mapped to Python/Pandas types!")
+    hudi_df.select(*hudi
