@@ -1,0 +1,155 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, coalesce, lit, when
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+import json
+
+# Khởi tạo Spark Session
+spark = SparkSession.builder \
+    .appName("DataFlattening") \
+    .getOrCreate()
+
+# Dữ liệu gốc của bạn
+data = [
+    {
+        "id": 1, 
+        "before": {"name": "Alice", "age": 20}, 
+        "after": {"name": "Alice_new", "age": 30}
+    },
+    {
+        "id": 2, 
+        "before": {"name": "Bob", "age": 30}, 
+        "after": {"age": 40}
+    },
+    {
+        "id": 3, 
+        "before": {"name": "Cathy", "age": 40}, 
+        "after": {"name": None}
+    }
+]
+
+# Tạo DataFrame từ dữ liệu
+df = spark.createDataFrame(data)
+
+print("Dữ liệu gốc:")
+df.show(truncate=False)
+df.printSchema()
+
+# Phương pháp 1: Sử dụng select và coalesce
+print("\n=== PHƯƠNG PHÁP 1: Sử dụng select và coalesce ===")
+
+flattened_df1 = df.select(
+    col("id"),
+    # Ưu tiên after.name, nếu null thì lấy before.name, nếu vẫn null thì lấy "None"
+    coalesce(col("after.name"), col("before.name"), lit("None")).alias("name"),
+    # Ưu tiên after.age, nếu null thì lấy before.age
+    coalesce(col("after.age"), col("before.age")).alias("age")
+)
+
+print("Kết quả phương pháp 1:")
+flattened_df1.show()
+
+# Phương pháp 2: Sử dụng when-otherwise để xử lý tường minh hơn
+print("\n=== PHƯƠNG PHÁP 2: Sử dụng when-otherwise ===")
+
+flattened_df2 = df.select(
+    col("id"),
+    # Xử lý name: nếu after.name không null thì lấy after.name, 
+    # ngược lại lấy before.name, nếu cả hai đều null thì lấy "None"
+    when(col("after.name").isNotNull(), col("after.name"))
+    .when(col("before.name").isNotNull(), col("before.name"))
+    .otherwise(lit("None")).alias("name"),
+    
+    # Xử lý age: ưu tiên after.age, nếu null thì lấy before.age
+    when(col("after.age").isNotNull(), col("after.age"))
+    .otherwise(col("before.age")).alias("age")
+)
+
+print("Kết quả phương pháp 2:")
+flattened_df2.show()
+
+# Phương pháp 3: Sử dụng UDF (User Defined Function) cho logic phức tạp hơn
+print("\n=== PHƯƠNG PHÁP 3: Sử dụng UDF ===")
+
+from pyspark.sql.functions import udf
+from pyspark.sql.types import MapType
+
+def merge_before_after(before, after):
+    """
+    Merge hai dict, ưu tiên giá trị từ after
+    Nếu giá trị là None thì convert thành string "None"
+    """
+    result = {}
+    
+    # Lấy tất cả keys từ cả before và after
+    all_keys = set()
+    if before:
+        all_keys.update(before.keys())
+    if after:
+        all_keys.update(after.keys())
+    
+    for key in all_keys:
+        after_val = after.get(key) if after else None
+        before_val = before.get(key) if before else None
+        
+        if after_val is not None:
+            result[key] = str(after_val) if after_val is None else after_val
+        elif before_val is not None:
+            result[key] = before_val
+        else:
+            result[key] = "None"
+    
+    return result
+
+# Đăng ký UDF
+merge_udf = udf(merge_before_after, MapType(StringType(), StringType()))
+
+# Áp dụng UDF
+df_with_merged = df.withColumn("merged", merge_udf(col("before"), col("after")))
+
+flattened_df3 = df_with_merged.select(
+    col("id"),
+    col("merged.name").alias("name"),
+    col("merged.age").cast(IntegerType()).alias("age")
+)
+
+print("Kết quả phương pháp 3:")
+flattened_df3.show()
+
+# Kiểm tra kết quả cuối cùng
+print("\n=== KIỂM TRA KỚT QUẢ ===")
+print("Chuyển đổi về JSON để so sánh:")
+
+# Chuyển đổi về format JSON để dễ so sánh
+result_json = flattened_df1.toJSON().collect()
+for row in result_json:
+    print(row)
+
+# Dọn dẹp
+spark.stop()
+
+# Lưu ý: Nếu bạn muốn xử lý trường hợp None trong after.name thành string "None"
+# thì có thể sử dụng:
+print("\n=== XỬ LÝ TRƯỜNG HỢP ĐẶC BIỆT CHO None ===")
+
+# Khởi tạo lại spark cho demo
+spark = SparkSession.builder \
+    .appName("DataFlattening") \
+    .getOrCreate()
+
+df = spark.createDataFrame(data)
+
+flattened_final = df.select(
+    col("id"),
+    # Xử lý đặc biệt cho None trong after.name
+    when(col("after.name").isNull() & col("after").isNotNull(), lit("None"))
+    .when(col("after.name").isNotNull(), col("after.name"))
+    .when(col("before.name").isNotNull(), col("before.name"))
+    .otherwise(lit("None")).alias("name"),
+    
+    coalesce(col("after.age"), col("before.age")).alias("age")
+)
+
+print("Kết quả xử lý đặc biệt cho None:")
+flattened_final.show()
+
+spark.stop()
