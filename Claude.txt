@@ -1,0 +1,223 @@
+I. Giới thiệu:
+
+1. page chia đôi, bên trái là chữ Giới Thiệu, bên phải là ảnh Claude
+
+2. dòng text trên nền đen hiện lên dần (như 1 intro của phim): "Chúng tôi nghe và chúng tôi không đánh giá"
+
+3. trục thời gian các cột mốc lịch sử lớn của nhân loại
+NOTE: 
+- nói về các cột mốc thời gian tiến hóa của nhân loại, qua các thời điểm bùng nổ, nhận xét các giai đoạn ngày càng ngắn và mạnh mẽ
+- đây là giai đoạn thú vị của nhân loại khi được chứng kiến sự bùng nổ của công nghệ, AI, kéo theo các nhu cầu tìm kiếm và phát triển năng lượng, tương lai như nhận định ai có được năng lượng sẽ làm chủ thế giới
+- nếu mọi người đã nghe về thang đo Kardashev -> thúc đẩy năng lượng phản ánh mức độ tiến hóa của nền văn minh theo thang đo này
+- quá trình làm việc & sử dụng gặp khá nhiều thứ hay ho, học được nhiều cái có thể đúc kết, tổng hợp & sắp xếp lại để đưa vào bài thuyết trình -> khó khăn là sắp xếp các mảnh thành 1 luồng  cho phù hợp, nhiều cái là kinh nghiệm nhưng rất khó để diễn tả -> khuyến khích mọi người dùng nhiều hơn để có các trải nghiệm cá nhân
+
+II. Agent memory:
+
+4. page chia đôi, bên trái là chữ Agent Memory, bên phải là ảnh phim Memento
+NOTE:
+- ảnh + giới thiệu phim -> nói về 1 gã giỏi và nguy hiểm, trí nhớ dừng lại ở 1 thời điểm trong quá khứ, trí nhớ mới chỉ ngắn hạn, dùng hình xăm trên người làm memory -> chính là agent
+
+5. page lần lượt hiển thị 5 loại memory (khi bấm ->)
+Managed policy:
+	- quy định của toàn tổ chức, không thể bị developer override
+	- thường ở C:\Program Files\ClaudeCode\CLAUDE.md
+NOTE:
+	- security rules, data governance, approved tools
+	- Không commit API keys, không gọi endpoint ngoài whitelist
+	
+User (global):
+	- apply cho mọi project theo user
+	- thường ở ~/.claude/CLAUDE.md
+NOTE:
+	- thông tin proxy: ban đầu khá vất vả để cài đặt các thư viện, sau đó đi tìm các page proxy của devops trên confluence, copy cho claude, yêu cầu nó test và lưu lại vào memory của mình
+	- cách cài đặt bmad: không cài được thẳng từ github, có 1 folder lưu các packages, cài đặt với các params gì...
+	
+Project share:
+	- apply cho project, chuẩn của team được check lên git
+	- đặt ở ./CLAUDE.md
+NOTE:
+	- Stack: React + Node.js + PostgreSQL. Chạy dev: npm run dev. Port mặc định: 3000
+	
+Project Local:
+	- apply cho project nhưng là memory cá nhân (gitignore)
+	- đặt ở ./CLAUDE.local.md
+NOTE:
+	- DB local của tôi: postgres://localhost:5432/myapp_dev
+	
+Project local auto:
+	- do Claude tự sinh
+	- ~/.claude/projects/<project>/memory/
+	
+III. Bmad:
+6. page hiển thị dòng text "BMad Method" phía trên và "Build More Architect Dreams" phía dưới
+NOTE:
+	- tìm hiểu quy trình làm việc, cách sử dụng claude, trước đó gần như chưa thử vibe code
+	- thay đổi mindset sử dụng và làm việc với AI -> nhận ra có nhiều thứ để thay đổi
+	- những trao đổi hôm nay mình muốn nói về quá trình đó hơn là kết quả, các bước thay đổi, improve khi sử dụng AI
+	- chọn bmad làm fw chính trong đợt này vì tin rằng việc vibe code cả 1 dự án sẽ là hoàn toàn làm được, tuy nhiên sẽ cần 1 quy trình hệ thống và framework hỗ trợ đủ tốt và chặt chẽ -> nên muốn học & apply về quy trình này luôn
+	- nói qua thì bmad là 1 AI-driven agile development framework, áp dụng Agile cho thực tế thì mọi người cũng hiểu là rất khó chuẩn chỉ, nhưng với AI thì nó lại rất phù hợp
+	- nói về việc Claude hỗ trợ cài đặt bmad, hỗ trợ cấu hình sourcetree, cài docker (mình đi xin firewall), gạ viết hộ mail gửi ITHelp
+	
+7. page hiển thị "BMad Workflow" với 4 phase lần lượt
+- Phase 1: Analysis (Optional)
+NOTE:
+	- đưa ra 1 idea/ý tưởng, gạch đầu dòng các vấn đề & brainstorm, tạo product-brief, kinh nghiệm khi hỏi đáp/brainstorm tránh các chỉ dẫn cứng nhắc dẫn đến kìm hãm model thông minh, nên để AI phỏng vấn mình
+	- ví dụ hỏi máy bay được tàu hỏa -> sai từ prompt "hướng dẫn tôi làm 1 cái máy bay để đi từ HN -> HCM"
+	- AI khuếch đại tư duy của bạn, không thay thế nó
+- Phase 2: Planning
+NOTE:
+	- tạo bản tiếng việt để review trước & sửa cho đến khi chốt
+- Phase 3: Solutioning
+NOTE:
+	- show ra ví dụ epic & chi tiết 1 epic (phase 4)
+- Phase 4: Implementation
+NOTE:
+	- create-story
+	- dev-story
+	- code-review
+NOTE:
+	- kinh nghiệm với bmad: phải review kỹ các bước
+	- các dự án dạng ý tưởng muốn nhanh nên review ít -> khi lên UI chạy rồi mới thấy nhiều thứ ko như mình muốn -> có thể lên mock UI trước
+	- Nghịch lý có thể ngồi 1 vài tuần, 1 tháng code 1 hệ thống nhưng lại rất lười bỏ ra 1-2 ngày để trao đổi & phân tích với AI
+	
+IV. Setup quy trình:
+8. page chia đôi, bên trái là chữ "Setup quy trình", nửa bên phải là ảnh phù hợp
+9. page thể hiện 1 quy trình làm việc tuần tự như hình
+NOTE:
+	- dùng model cao nhất, chưa cố gắng tối ưu token, muốn hiểu cách dùng token trước
+	- tạo file run-claude.bat để không cần cd đến thư mục hiện tại và bypass permission
+	- lỗi font -> chuyển sang dùng Mintty, claude giúp tìm & cài đặt, viết file run-mintty.bat, tự nhận xét dùng mintty có terminal đẹp + UTF-8
+	- làm tuần tự để hiểu từng bước là làm gì, hiểu dependency, hiểu các bước đó thường Agent nó có gặp vấn đề gì lớn cần mình confirm hay xác nhận lại gì không
+	
+10. page thể hiện quy trình làm việc như hình
+NOTE:
+	- với mỗi epic tạo 1 worktree
+	- tạo 1 epic orchestrator agent
+	- với mỗi story tạo lần lượt các sub-agent, sau khi xong thì báo cáo kết quả & sang story tiếp theo
+	- thực ra ban đầu không review, chỉ review cuối story -> nhận thấy khối lượng code review lớn, và review cuối story đều có vấn đề cần update -> đưa thêm bước review code
+	- có quy trình tự động -> bắt đầu tách thêm epic chạy song song theo nguyên tắc ko dependency lẫn nhau, ít conflict code (show hình các epic dependency)
+	- thay đổi phong cách làm việc đa luồng, có khi trao đổi bên cửa sổ này 1 tí, trong lúc chờ nó trả lời thì đầu lại load lại cửa sổ khác để trả lời
+	- đây là lúc đốt tokens nhanh nhất (thường là 2 epic chạy song song, 1-2 cửa sổ agent khác để trao đổi việc khác), khoảng 2.5 ngày hết token của 1 tuần
+	- AR = ...
+	- ECH = ...
+	
+11. page thể hiện quy trình làm việc như hình
+NOTE:
+	- nhu cầu tối ưu lại quy trình & token, nhận thấy mỗi orchestrator quy trình cũ giữ quá nhiều thông tin qua mỗi story
+	- mỗi epic tạo 1 worktree
+	- mỗi story tạo 1 story orchestrator agent
+	- mỗi story orchestrator agent tạo ra lần lượt các sub-agent, bước review code thì không đẩy thông tin ra orchestrator agent mà chỉ trả về cho nó thông tin có bao nhiêu lỗi & ghi ra file để orchestrator tạo sub-agent fix story
+	- chọn các model khác nhau cho agent để giảm token
+	- mỗi story orchestrator agent khi hoàn thành nếu còn story của epic thì spawn sub-agent mới "/bmad-agent-pm follow the runbook..."
+	- viết lại file run-mintty.bat cho truyền thêm prompt vào (show ver3), qua nhiều bước sửa chữa & fix (không start được, start nhưng ko gọi claude được...) -> nhận ra file .bat chạy từ đầu ko hoàn toàn sạch, phải truyền proxy vào
+	
+12. page chia đôi, bên trái là chữ "trả giá", bên phải là ảnh 12
+NOTE:
+	- một số vấn đề lớn nảy sinh
+	- sub-agent không bắt đầu bằng slash command của skill -> update runbook để ép main-agent prompt chính xác theo yêu cầu, thay vì nó tự sáng tạo prompt
+	- sub tự tạo branch nhưng base từ đầu epic -> update orchestration loop & prompt chặt chẽ hơn để đưa ra các quy định cho sub-agent, nó được quyền làm gì và không được làm gì
+	- dev 1 story chỉ có 8 epics -> phát sinh thành 12 epics
+	- vấn đề là code dự án phức tạp (.net, multi thread), sub-agent review đúng, fix đúng, nhưng ảnh hưởng các story khác -> do review chỉ nhìn trên code vừa xử lý, sub-agnet sau khi fix không có review lại, không có review ảnh hưởng
+	- ví dụ 1 story làm công việc thay đổi giá trị 1 biến, story sau lại làm công việc đó từ 1 thread khác -> không đánh giá ảnh hưởng chính xác
+
+13. page thể hiện quy trình như hình
+NOTE:
+	- bước create-story trả về đánh giá tier của story này ở mức light/heavy/assembly, nếu light ở bước review không có C/H thì không cần bước re-review, assembly sẽ có thêm bước review tích hợp
+	- các sub-agent review trả về mức độ của vấn đề Critical/High/Medium/Low
+	- lặp lại bước re-review nếu còn C/H
+	- Thay đổi thói quen làm việc: chuẩn bị đầy đủ các công việc trước khi đi ngủ, trước khi về để sẵn sàng cho các story trong 1 epic bước vào vòng lặp, buổi sáng kiểm tra xem vướng mắc ở đâu không trước khi lên cty
+	
+14. page thể hiện quy trình như hình
+
+V. Một số kinh nghiệm:
+15. page có gạch đầu dòng lần lượt:
+- Trao đổi tiếng việt, viết tài liệu tiếng anh, có thể dùng html song song với md
+- chia nhỏ hoặc tạo các page index tài liệu, lưu trong file CLAUDE.md
+- những prompt có tính tái sử dụng hoặc làm chỉ dẫn thì có thể yêu cầu claude viết & mình review lại, lưu dạng md
+- Model càng mạnh thì vai trò của prompt không phải là mô tả mọi chi tiết, mà là khởi động một quá trình làm rõ yêu cầu. 
+NOTE:
+	Prompt quá chung chung -> Agent phải đoán và dễ đi sai hướng; nhưng prompt quá chi tiết ngay từ đầu lại vô tình giới hạn khả năng suy luận của model. 
+	Cách tiếp cận Anthropic khuyến nghị là để Claude chủ động phỏng vấn người dùng, từng bước khai thác requirement và tạo ra một specification đầy đủ trước khi bắt đầu sinh code.
+	Trường hợp 1: Requirement rất rõ
+	Xây dựng REST API CRUD cho bảng Customer theo schema này.
+	Ở đây:
+	 Input rõ
+	 Output rõ
+	 Business logic rõ
+	Claude có thể code gần như ngay lập tức.
+	Trường hợp 2: Hơi mơ hồ
+	Tôi muốn làm app quản lý công việc.
+	Claude nên hỏi:
+	 Cá nhân hay nhóm?
+	 Web hay mobile?
+	 Có deadline?
+	 Có reminder?
+	 Có phân quyền?
+	Chỉ khoảng 5–10 câu hỏi.
+	Trường hợp 3: Rất mơ hồ
+	Tôi muốn xây một sản phẩm AI giúp doanh nghiệp.
+	Đây là lúc brainstorming trở nên cực kỳ quan trọng.
+	Claude nên cùng bạn khám phá:
+	 Người dùng là ai?
+	 Họ đang gặp vấn đề gì?
+	 Giá trị cốt lõi là gì?
+	 MVP nên gồm những gì?
+	 Điều gì có thể bỏ qua?
+	 Thành công được đo bằng tiêu chí nào?
+	Có thể mất hàng chục lượt trao đổi trước khi bắt đầu viết spec.
+- khi agent càng thông minh thì cách sử dụng sẽ dần là dùng agent để prompt agent, kết hợp automation để thành quy trình tự động
+NOTE:
+	ví dụ về dự án trading phái sinh, tìm bộ số tối ưu với dữ liệu backtest, tổ hợp các bộ số chạy mất khoảng 6-7 tiếng, claude viết file python tự chạy, trigger ngược lại khi xong
+- nên có review & review nhiều vòng, review thường luôn có kết quả, nêndùng để chạy công việc lặp lại, nên yêu cầu list ra và có checklist + summary để theo dõi tiến độ cân nhắc việc fix hay ko
+- subagent:
+	+ subagent không thể spanw subagents khác -> tránh mất kiểm soát
+	+ subagent có thể dùng model khác -> thuận tiện cho việc test hoặc viết tài liệu
+	+ nên yêu cầu prompt chính xác, tránh main agent tự ý sửa prompt hoặc không kích hoạt skill
+	+ nên yêu cầu list ra và có checklist + summary để theo dõi tiến độ
+	+ có thể cho main agent tự approve những phần đơn giản theo recommend, nếu cái nào critical thì chờ approve/feedback
+	+ sử dụng sub-agent để review với các vấn đề quan trọng hoặc bế tắc
+NOTE: kể về chuyện review tìm ra vấn đề bảo mật chặn Minio -> Spark
+- tốt nhưng chưa đủ
+NOTE: ví dụ về kiến trúc vẫn chưa đủ tốt, ví dụ về cách xử lý dữ liệu snapshot -> phải gợi ý cho agent
+- giao việc cho AI nhiều hơn:
+NOTE: kể chuyện cài đặt docker, minty, source tree, kinh nghiệm tránh liên quan UI, gọi terminal dễ hơn, sau khi fix được thì tổng kết lại vấn đề, cách fix...
+
+VI. Công việc tiếp theo
+16. 1 page hiển thị các gạch đầu dòng:
+	- Tối ưu quy trình vibe code
+	- test các framework khác ngoài bmad: Agent Skills, Superpowers
+	- ứng dụng nhiều hơn cho big data & công việc thực tế
+	- test các công cụ khác của claude: 
+		+ claude desktop: chủ yếu cho test UI
+		+ team agent
+		+ claude design
+		+ Anthropic Advisor nếu có trên claude code
+NOTE:
+	- ví dụ hiện tại khi các epic xong đang thực hiện merge code vào main thủ công, sau đó tạo worktree mới, cài đặt bmad trên đó -> có thể đưa thành quy trình làm tự động
+	- suy nghĩ về hướng tạo 1 service điều phối các agent, cho các agent nói chuyện với nhau qua api trigger (giống mô hình microservice)
+	- với main agent để merge code của epic và tạo worktree có thể long pooling hoặc chờ trigger
+	- service này hoàn toàn có thể vibe code
+	- claude desktop: tools tự động sendkey
+	- team agent: dùng claude để hỏi các thiết lập liên quan -> chưa phù hợp, gặp 1 trường hợp bị đốt token nhanh -> phải yc dừng
+	- đo đạc và kiểm chứng kết quả khi sử dụng
+	
+VII. Tổng kết:
+17. 1 page hiển thị các gạch đầu dòng:
+- Điểm bùng nổ thay đổi công nghệ
+- Năng lực các model đang thay đổi theo cấp số nhân, doanh nghiệp đang thay đổi tuyến tính
+NOTE:
+	- Dẫn chứng Claude được update rất nhiều trong thời gian sử dụng, ra thêm claude desktop
+	- Anthropic sử dụng cùng model chúng ta đang dùng & apply code vào thực tế, thay đổi quy trình vận hành tự động, chiếm 80% công việc
+	- Các repo trên Github được update hằng ngày -> theo dõi các page tổng hợp theo tuần xem repo nào lên star nhiều
+	- ngày trước thì khó vì thiếu tài liệu, giờ khó vì quá nhiều tài liệu
+	- các model tiến hóa rất nhanh
+- Để tận dụng được sức mạnh thì phải thay đổi cách tiếp cận, chấp nhận và kiểm soát 1 cách có trách nhiệm
+NOTE:
+	- dữ liệu cách đây 20 năm chỉ vài KB, chúng ta rất khó tưởng tượng việc dữ liệu có thể lưu trữ và xử lý hàng TB sẽ khác biệt thế nào
+	- So sánh với trình biên dịch: ban đầu lập trình viên không tin, vẫn đọc mã assembly — nhưng đến lúc phải tin tưởng hệ thống mới mở rộng được
+	- Chúng ta đang ở thời điểm thay đổi về cách phát triển phần mềm, bình dân hóa nó bằng cách chỉ mô tả, bản chất của việc code cũng là mô tả ở mức chi tiết
+	- Tư duy của người quản lý chấp nhận những cái không thể biết hết được, như cách làm việc với 1 nhân viên mới, review code và trao trách nhiệm dần, dùng test chấp nhận để xác minh
+	- sử dụng với các hệ thống ít ảnh hưởng nhất trước -> rất nhanh đến lúc model tiến hóa đủ mạnh
+	- Tập trung vào "Leaf Nodes" những phần code không có gì phụ thuộc vào, tính năng cuối cùng, không phải nhánh hay thân cây chính, tạo checkpoints có thể xác minh mà không cần đọc toàn bộ code
+	- Phần lõi vẫn cần hiểu sâu và bảo vệ kỹ
+	- Dành thời gian đủ cho nó như cộng việc chính
