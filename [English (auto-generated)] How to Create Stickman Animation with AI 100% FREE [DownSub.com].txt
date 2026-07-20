@@ -1,0 +1,127 @@
+How to make animated stickman videos for
+free using AI? Are you asking yourself
+the same thing? Don't worry, I can help
+you. We will make sure it is 100% free
+and the characters stay the same in
+every scene.
+First, look at this channel. It has
+about 90,000 subscribers with only 45
+videos. They uploaded their first video
+just 3 months ago. This means they
+gained 90,000 subscribers in a very
+short time and are now making a lot of
+money. So, how can we make videos like
+this? If you watch their videos, you
+will see they only use static images.
+They don't even animate the stickman
+characters, but they still get many
+views. In this video, I will teach you
+how to animate your images and create
+similar videos that can easily get a lot
+of views. In this video, I'm going to
+share a secret sauce that makes creating
+content fast and easy. I will give you a
+master prompt that handles everything
+from start to finish, including images,
+sound, and video production. I'm also
+going to show you a great tool to
+automate your videos, so you can manage
+your work easily in one place. I've put
+the master prompt and all the links from
+this tutorial in the description for
+you. If you find this helpful, please
+like the video and subscribe so you
+don't miss my next tutorials. First,
+I'll copy the prompt from this section
+and paste it into ChatGPT. Then, I go
+back to the Google Doc to copy the
+second piece of text. I'm going to paste
+that right into the insert topic part.
+Finally, I click the generate button and
+wait for the result to be ready.
+Next, I go to the Gemini website to
+create the images. I split my screen,
+click on the create image option, and
+paste the prompts for each scene one by
+one. Finally, I downloaded all the
+photos. Now, let's create the video.
+First, go to Google and search for the
+Grok Automation extension. Go to the web
+store and install it. I like to pin it
+so it is easy to find. Next, click on
+the icon. For this to work, you must
+have the Grok website open and be logged
+in. So, click the navigate to Grock
+button to enter the site. Once you are
+there, you will see that the extension
+is active. Now, choose the frame to
+video option and upload your photos. Be
+very careful to add all the photos in
+the correct order. Finally, go to chat
+GPT and copy the video prompts from part
+two. Go back to Grock and paste them
+into the prompt section. As you can see,
+it found exactly 10 scenes using the
+same 10 photos I gave it. In this
+extension, every two new lines creates a
+new prompt. So, be careful. If the
+scenes don't look right, you probably
+put a new line in the wrong place.
+Now, I'll scroll to the bottom and click
+the run button.
+From here, the automation does all the
+work and turns each image into a video
+one by one.
+Just one very important point. Do not
+close the Grock tab at all while it is
+working.
+Once the work is finished, the extension
+will automatically download all the
+videos into a folder for you. Next,
+let's create the voiceover. For this
+part, I use Google AI Studio. It is a
+powerful and free tool for creating
+voices, and I have put the link in the
+description.
+Once I am on this page, I select the
+single speaker option. In the model
+section, I choose Gemini 2.5 flash
+preview TTS.
+I have picked a random voice, and now it
+is time for the script. I go back to
+chat GPT and find part three, which is
+the voiceover script. Here, there is a
+different text for every scene. I
+already copied all those texts and put
+them together. Now, I copy everything,
+go to Google AI Studio, and paste it
+into the text section. In the style
+instructions, I also ask for a warm and
+motivational tone.
+Finally, I click run to generate the
+voice.
+When the audio is ready, I download it.
+Then, I put the videos I recorded
+earlier into my editing software. I
+match the audio and video together
+carefully to get a clean result. Now,
+let's see what I made. Ever feel too
+overwhelmed to even start? The work
+feels heavy before you even open your
+laptop. So, instead, you scroll, telling
+yourself you'll start later. The problem
+isn't laziness. It's that the task feels
+too big.
+Here's a simple trick, the 5-minute
+rule.
+Set a timer for just 5 minutes and
+promise yourself you'll stop after that.
+Once you start, the pressure disappears.
+You're just doing a little, not
+everything. And something surprising
+happens. Progress feels good. Momentum
+builds. 5 minutes often turns into much
+more. Now, the task isn't scary anymore.
+It feels doable.
+Remember, motivation doesn't come before
+action. Just start for 5 minutes.
