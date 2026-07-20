@@ -1,0 +1,599 @@
+Xin chào anh em. Hôm nay thì tiếp tục
+chia sẻ anh em một con app thứ ba của
+mình trên Google Follow. Một con app có
+tính năng tự động bắt dính ảnh tham
+chiếu đầu vào để nó tự động nó link vào
+các nốt có ảnh và nốt của video. Đó thì
+chúng ta không phải làm thủ công. Đấ
+hiện tại đây mình đang test một cái dự
+án người que và nó khoảng gần 200 pom
+nhá. Và nó đang chạy đây. Đấy nó đang
+chạy là 122 rồi đấy. Thì nhân cái cái
+chủ đề người que thì mình chia sẻ với
+anh em đợ vừa rồi. Đợt vừa rồi thì nó có
+một cái cái chen về người que ở trên
+YouTube và một cái tay người nước ngoài
+họ chia sẻ. Đây thì mấy anh em đây kênh
+này nhá. Mấy anh em Việt Nam thì lấy bê
+nguyên content của nước ngoài về xong
+bắt đầu đấy
+>> xong bắt đầu là lấy cả Master Pom của họ
+lấy cả cái extension của họ để xong làm
+video câu view câu like. Thực ra thì nó
+mang tin tức cho anh em thì cũng tốt
+không cũng không có vấn đề gì nhưng mà ý
+là một số cái quy trình của cái ông Tây
+này ông chia sẻ thì nó vẫn còn thu công
+để mình phân tích cho anh em nhá.
+>> Đó người quen này ấy thì ông ấy sử dụng
+Crow Code cộng với YouTube thì ra được
+77.000 đô một tháng. Đấy đây là một cái
+tiêu đề rất thu hút được chưa? Một tuần
+256.000 view.
+Và cái cách ông ấy làm này thì ông ấy
+làm bằng chạy trên flow bằng extension
+đấy chứ không không không tạo app như
+mình.
+Chạy bằng extension này không không thể
+bằng chạy bằng trực tiếp trên ấy được.
+Chạy trên app nó tiện hơn nhiều và nó dễ
+dễ hình dung hơn nhiều. Đấy đây c ông
+làm sau thì ông ấy đưa vào cáp cắt ông
+ấy kéo thủ công. Đấy thì mấy mấy anh em
+Việt Nam làm thì cũng bê nguyên y như
+này đấy. Thực ra mình sẽ không làm như
+này. Đây như cách của mình nhá. Mình
+chia sẻ cách của mình. Thì anh em nào mà
+muốn xây kênh YouTube có thể tham khảo
+thêm. Thì cái ngách này đây anh em này.
+Ngách này những kênh mới nó vẫn đang nổ
+view rất mạnh nhá. Đấy cái kênh này làm
+YouTube thì anh em cứ nghiên cứu kênh
+lớn làm theo kênh nhỏ. Đấy 17 giờ trước
+1 triệu view này. Đấy vẫn nổ rất ác nhá.
+Đây chia sẻ cho anh em cái ngách thì
+đây để xem họ nào nhá.
+Họ làm ảnh tĩnh rất nhiều nhá. Họ làm
+ảnh tĩnh rất nhiều và cái chủ kênh thì
+họ đã nhân bản rất nhiều kênh luôn đấy.
+Và vẫn bật kiếm tiền bình thường chứ
+không phải là ai không kiếm được tiền
+hết anh em nhá. Đợi vừa rồi chết rất
+nhiều kênh, rất nhiều gà nhưng mà
+>> người ta vẫn làm. chết lại
+đó thì anh em có thể nghiên cứu cái
+ngách hiện tại thì thế giới người ta
+cũng nhảy vào tương đối nhiều rồi nhưng
+mà đây hơn 7 triệu view kinh nhì
+anh em có thể nghiên cứu về cái cái này
+thì người anh Tây này anh đã cho Master
+Pom rồi vào đây này anh em vào đây thấy
+Master Pom này đấy
+mình thì mình không không dùng cái kiểu
+như này mình sẽ dùng chia cái các theo
+từng step cái là họ sẽ từng bước một.
+Đấy mình viết kịch bản sau đó mình sẽ
+chia phân cảnh à sau đó thì mình sẽ kết
+hợp với cái app này của mình để mình à
+rồi
+thì hôm nay chém gió thêm một tí về
+YouTube nhá. Đấy
+đó thì mình sẽ mình nói chia sẻ thêm cho
+anh em chia sẻ thôi. Thì mình sẽ thứ
+nhất là mình sẽ xem viết một kịch bản
+xong thì mình sẽ tạo các nhân vật à tạo
+nhân vật. Tạo nhân vật xong thì mình sẽ
+tạo cho cái ảnh tham chiếu chat dat shit
+cho các nhân vật. Đấy, sau đó thì mình
+sẽ viết pom viết form cho
+cho phân cảnh đấy. Đấy, ví dụ như cái
+video này mình chơi tận 188 phân cảnh.
+Mình mỗi phân cảnh mình chỉ chạy cho 4
+giây thôi. Cho nên là video thoại nói
+đến đâu thì là video bình họa nó sẽ khớp
+đến đấy. Đó, ví dụ cấu trúc pom như này.
+Đấy, cấu trúc pom này thì ví dụ như là
+cái ảnh phân cảnh số hai này thì nó có
+cái ảnh tham chiếu là cái thằng này. Ví
+dụ đây là thằng A chẳng hạn cho anh em
+dễ hình dung. Thì trong cái cấu trúc
+email prom ấy thì nó cũng phải có chữ a
+thì nó sẽ tự động bắt dính vào trong cái
+tool. Đấy và video nó cũng tương tự như
+vậy. Anh em cũng phải ví dụ như nhân vật
+thì mình đã trên cho cái thằng chat vt
+và thằng Crow hoặc là thằng Zemini chẳng
+hạn thì mình trên cho nó thôi. Mình bắt
+nó. Ví dụ như phân cảnh 1 kênh phảnh 30
+kênh phả 40 có cái thằng A thì bạn phải
+có cái quy tắc là khóa cái tham chiếu
+nhân vật này bằng A + A. Đấy. Dễ hiểu
+như vậy. Đó. Thì anh em thấy này. Đấy,
+khi mình đưa vào phát, đưa vào cái tool
+này phát thì nó tự động. Đấy, ví dụ cảnh
+này có tham chiếu thì nó mới nó mới nối
+vào, nó mới ninh vào. Đấy, còn không có
+thì nó không ninh. Đấy, anh em thấy là
+mình chạy như này nó có dễ hình dung hơn
+rất nhiều không? Mình rất trực quan mình
+nhìn thấy được cái ảnh nó tạo ra như nào
+và cái video nó tạo ra như nào. Nhì nhìn
+nhất quá này. Ảnh video vào đấy. Khớp
+100% anh em. này đây mình mình chia sẻ
+app miễn phí cho anh em cho mình chia sẻ
+thêm một cái cách làm nữa để anh em có
+thể làm kênh YouTube đấy
+còn chưa chắc làm thì đã được bật kiếm
+tiền chưa chắc làm thì đã có tiền mà
+trong khi đó là anh em đi học ngoài cái
+tiền học phí ra còn rất nhiều các công
+cụ bây giờ mua cái tài khoản Ultra bây
+giờ nó cũng đắt ấy mà để làm cái số
+lượng video như này không phải đơn giản
+đúng không cái tiền đầu tư rất nhiều đó
+mà chưa chắc đã có kết quả
+cái tool nó không đảm bảo anh Anh em nào
+ra tiền đâu.
+Đây mình đang đang nói về cái độ nhất
+quán là nó nhất quán gần như tuyệt đối.
+Đó và cái chủ đề người que thì nó cũng
+không quá kỹ như cái kiểu như là làm
+phim đúng không ạ? Anh em chỉ cần
+nó đúng cái cái voi nó đi đến đâu thì
+mình minh họa đúng đến đấy là được.
+Ok nhá. Đây đây mình mình chia sẻ là cái
+app mình chia sẻ cho anh em là nó rất
+ngon mà mình đang áp dụng và thực tế và
+công việc của mình chứ không phải mình
+chia sẻ ờ câu like câu view đâu nhá. Đấy
+anh em nhìn đấy.
+Và đến cả tây nó làm tây nó làm nhiều
+khi nó c còn chưa ngon bằng bằng anh em
+Việt Nam nữa. Đây cái quy trình của nó
+chạy bằng bằng extension đấy thì làm sao
+bằng được trực quan được đúng không? Đấy
+ok
+thì đây mình sẽ đây nhiều ấy quá. Đây
+mình sẽ làm qua cho anh em nhá. Đây anh
+em vào cái anh em vào trong nhóm Zalo
+của mình ấy thì mình đã có ghim rồi đấy.
+Ghim này anh em vào trong nhóm Zalo nhá
+thì mình sẽ đểa cái cái link của mình ở
+trên cái phần tin nhắn đầu tiên này anh
+em vào và anh em sẽ mở ra thì nó có cái
+cái file đọc ở Google đọc ấy. Thì tại
+sao mình để như vậy? Bởi vì trong những
+cái bản fit ấy thì mình sẽ được cập nhật
+những cái link mới thì mình sẽ cập nhật
+vào một cái file duy nhất. Anh em chỉ
+cần vào lấy một cái file duy nhất này
+thì có những cái bản cập nhật thì nó sẽ
+sẽ có cái link mới trong này. Vì cái
+thằng Google Follow này mỗi lần mình fit
+ấy thì nó sẽ tạo ra một cái link mới anh
+em. cái bạn cũ là dùng cái link cũ là nó
+sẽ không không có những cái đấy đâu. Đấy
+không được cập nhật đâu. Thì bây giờ
+mình chạy con app như thế nào thì anh em
+vào đây này. Đấy anh em vào đây xong anh
+em chọn ảnh tham chiếu này thì anh anh
+em tải lên. Anh em tải ví dụ của mình
+đấy có ba cái ảnh tham chiếu đấy thì
+mình đã tải lên rồi.
+Nhiều quá thôi được mình để tải lại nhá.
+Tải ba trang chiếu này chẳng hạn. Thế
+đấy.
+Media file này. Đấy. Tải
+thấy chưa?
+Đấy. Thì tải lên nhá. Tải lên. Sau đó
+thì anh em phải thay tên thay tên lại
+nhá. Đây mình kéo đây để mình lấy tên.
+Đó. Đây mình sẽ làm kỹ một chút, chậm
+một chút để cho anh em
+anh chị em mà nó không quá tốt về công
+nghệ thì cũng có thể làm được. Đấy. Và
+kéo khi mà mình đưa lên đây thì nó sẽ bị
+mất tên, mình sẽ phải bôi lại tên cho
+đó. Đấy, trong cái dự án của mình, trong
+cái tập của phim của mình, mình viết pom
+ra tạo ra tên nhân vật thì nó sẽ có tên
+đây. Và nó sẽ phải nhất quán theo đúng
+cái pom nhá. Đấy, add tiếp cái thứ hai.
+Rồi viết tiếp tên cho cái thứ hai.
+Anh chị em nếu mà mới làm thì đừng xem,
+đừng có tua nhá. Để làm cho chuẩn.
+Anh em biết rồi, pro biết rồi thì thôi
+không cần xem. Đây cái chia sẻ chủ yếu
+mình chia sẻ cho người mới thôi.
+Được chưa? Ghi nhầm
+đấy. Ghi nhầm tên cái này không được ghi
+nhầm nhá. ghi nhầm thì nó sẽ bị sai.
+Đấy.
+Ok. Ví dụ của mình có ba nhân vật đấy
+thì mình đưa đủ nhân vật và viết tên
+vào. Bên này thì mình chọn này. Mình
+chọn chuối hai cho nhanh 1k thôi cho
+nhanh.
+Cái này thì mình thì mình hay dùng thằng
+Omniflash và nó sẽ mất điểm nó đắt nhưng
+mà cái chữ nó ra nó chính xác bởi vì làm
+mình làm thị trường đi ngoại nó nó cần
+chất đấy. Không thể tiếc tiền mà dùng
+cái bản không mất điểm được. Đấy ví dụ
+mình đặt tên mình đặt tên cho dự án là
+EP tập 001 này hoặc là có một anh em
+viết gì viết 1k thôi cho nhanh vì cái
+dạng người que mình cũng không cần phải
+quá sắc.
+169 này sau đó mình up bom lên.
+Pom đâu? Đó.
+Rồi up một phát là 188 pom này. Đấy.
+Tiếp sang cột video này. Đấy. Th chưa?
+Đó. Thì xong đó mình sẽ khởi động dự án
+này.
+Được chưa? Phòng to đây.
+Đó. Nhìn nó trực quan hơn nhiều đúng
+không? Nhìn trực quan hơn rất nhiều.
+Ok. Như vậy thì anh em đã hiểu rồi nhá.
+Xong anh em chạy. Nếu mà giờ anh em
+không cần kỹ thì anh em chạy đồng thời
+ấy. Còn chạy nếu mà chạy theo nguồn ấy
+thì là nó sẽ lần lượt chạy từng ảnh một.
+Ứ
+đây anh em nhìn vào đây sẽ hiểu này. Đây
+đây. Đấy
+v trận 188 pom nó hơi dài đây nhá. Anh
+em nhìn kỹ này. Chạy mình thì mình hay
+chạy theo nguồn ấy thì là cái ảnh một nó
+sẽ là tham chiếu của ảnh hai. Có ảnh một
+chạy xong thì nó sẽ vào đầu là ảnh tham
+chiếu của cả hai. Như vậy cái bối cảnh
+nó sẽ được nhất quán với nhau. Đấy màu
+sắc và bối cảnh nó sẽ được nhất quán. Vì
+cứ ảnh một là tham chiếu của ảnh hai,
+ảnh hai là tham chiếu của ảnh ba. Đấy và
+cái cấu trúc mà dép ấy thì mình đưa được
+cả ví dụ cái cái cái phân cảnh số hai mà
+có dép của ảnh hai thì nó cũng tự động
+nó link vào đây. Đấy
+sử dụng ảnh
+và dép nhân vật
+đó nó chạy. Và cái thằng flow thì nhiều
+khi nó hay lỗi nhá anh em nhá. Đấy anh
+em làm là phải kiểm tra chứ không phải
+cứ ngồi đấy chờ đấy để đến đêm mai có
+video đâu. Nhiều khi nó đứng đấy đường
+mình ngọt pom nhiều khi nó rất hay bị vi
+phạm chính sách. Thằng này nó hơi tí nó
+vi phạm chính sách đất củ chuối đấy
+nên mình thỉnh thoảng mình vẫn phải canh
+canh và mình chạy thủ công nhá. Đây mình
+xem mình xem có đang bị dừng không. Đấy
+đây mà mình làm đang làm đây hàng trăm
+video đây. Không phải không chạy được
+nhá anh em nhá.
+Đấy, do một số anh em mua những cái tài
+khoản nó không ngon thì chạy được một
+vài cái nó đã dừng rồi.
+Đây như này nó đang dừng đây anh em này.
+Đấy, nhiều khi mình chạy ở đây rồi xong
+rồi nhưng nó dừng vì chẳng ví dụ như cái
+cảnh đây là cảnh 122 nó đang bị lỗi vì
+cái form vi phạm chính sách nó không
+chạy th nhiều khi chạy lần một không
+được như chạy lần hai lần ba nó mới
+được. Đấy. Và đây đến đây thì anh em ấn
+vào đây này. Ấn vào đây nó ra chạy chuỗi
+nhá. Thì nó sẽ tự động chạy chạy tiếp.
+Đó. Ok. Thì sau khi mà có video thành
+phẩm rồi ấy đây xem tiếp tây tây nó làm
+tây nó làm nó đưa vào cắp cắt cho nó kéo
+thủ công đấy để nó khớp đấy để nó khớp
+nó lên một cái trang web khác để nó lấy
+cái cái phần kiểu như phần file sub str
+cái cái phần tham chẳng hạn nhá. Đấy thì
+là nó nó xem được cái cái thời mốc thời
+gian xong nó cứ căn theo mốc thời gian
+chỉnh thế thì có mà hơn 100 cảnh thì hết
+mẹ ngày đúng không? Mình thì mình không
+chơi thế nhá. Bây giờ mình sẽ chia sẻ
+anh em chắc là nhiều anh em biết rồi. C
+là mình cứ có thể là sử dụng Crowd code
+đấy. Nó sẽ code cho mình khi mình đưa
+cho nó một cái thư mục đưa cho nó một
+cái thư mục video và cái thư mục
+của cái file ấy. Xong bảo nó đồng bộ nó
+sẽ nó sẽ đồng bộ cho mình luôn. Đấy nó
+sẽ sẽ sử dụng một cái cái số Python ấy
+xong rồi nó
+nó edit cho mình công cụ nó sử dụng công
+cụ thứ ba
+đấy. Không thì anh em sau này mình đang
+phát triển một cái con tool đấy. Mình
+đang phát triển một con tool đấy.
+Thì là mình sẽ này đồng bộ con tool này
+của mình thì nó tương đối nhiều chức
+năng như mình đang code nó dự án nó nó
+lớn code nó hay bị limit quá đấy. Đâm ra
+cứ phải chờ đây mọi người này. Để mọi
+người cho cái nguồn của file vào xong
+rồi point cho còn 100 ví dụ cho một cái
+voice thu qua na hoặc các nền đẳng khác
+nhá. Sau đó thì mình đưa cái clip này
+vào xong bắt đầu mình tạo đồng bộ. Đấy
+mình đưa cả cái nếu mình chưa có file
+SRT thì vào đây nó sẽ tạo file SRT luôn.
+Đấy thì ấn vào đây nó sẽ tự động file ST
+để nó lấy cái mốc thời gian. Nó phải có
+cái mốc thời gian đó thì nó mới nó mới
+edit được và nó tự động kéo co giãn kéo
+này thêm hiệu ứng này vào các phân cảnh
+để làm sao mà cứ voi nói đến đâu ấy thì
+là cái clip minh họa đi theo khớp bên
+đấy. Đấy
+và cái cái trong cái clip ấy thì mình đã
+cũng đã làm tương đối chuẩn rồi. Trong
+cái 188 clip này mình mỗi clip mình chỉ
+làm 4 giây thôi. Đấy mỗi clip 4 giây thì
+nó sẽ rất là ăn khớp với cái cái voi
+này. Đấy.
+Sau đó thì mình có thể là không còn qua
+cáp cắt mình cứ đưa logo vào đây luôn.
+Đấy, đưa logo, đưa cái chữ M vào đây.
+Xong rồi mình có thể xuất luôn được nhá.
+Còn nếu mà anh em muốn sử dụng cáp cắt,
+auto cáp cắt thì anh em vào đây. Đấy,
+anh em đưa vào đây xong rồi đưa dự án
+các thứ vào đây. Xong rồi nó tạo ảnh m
+rồi chuyển cảnh này, tắt tiếng của clip
+AI này. Đấy, đảo thứ tự này các kiểu.
+Xong bắt đầu nó tạo dự án xong. Tạo dự
+án xong thì nó có thể là auto caption
+này, tạo chữ này chạy này. Xong nó tự
+động
+xuất video ra vào đây. Đấy chẳng hạn.
+Thế thì cái này thì mình vẫn chưa chưa
+hoàn thành hết nhá vì nó mình đưa nhiều
+chức năng quá. Đây anh em này. Tiện giới
+thiệu luôn anh em nhá. Đây download
+video đa nền tảng luôn. Đấy đa nền tảng
+này. Thứ hai là tìm chen này. Tìm chen
+ví dụ các ông mà làm cái kiểu là dịch
+phim lồng tiếng ở đấy ở Bil hoặc là đầu
+in Trung Quốc về chẳng hạn. Thế thì ví
+dụ như là mình chưa biết từ khóa gì ấn
+vào đây. Ấn vào đây nó sẽ gợi ý cho mình
+các từ khóa này ờ xuyên không 3D chẳng
+hạn. Đấy thì nó đã tìm chen cho mình
+luôn. Thấy chưa? Đấy tầm chen và cái
+mình code cào data theo ngày này, theo
+giờ luôn. Anh em thấy cái chen thì nó sẽ
+hiện ở đây. Đấy.
+Hoặc lên YouTube của Việt Nam thì anh em
+đang làm mảng này rất mạnh.
+Mình thì mình cũng không không thích cái
+mảng này mấy. Gần như không làm. Mình
+thấy anh em hỏi nhiều và mình tận dụng
+cái cái cái tool này mình sẽ làm luôn
+cho anh em. Đấy, tìm chen nhá. Xong tải
+về nhá. Tải về xong đó. Đây này. Đây là
+chức năng mình đang code dở chức năng
+lồng tiếng luôn. Tất cả trong một con
+tool. Thứ hai là đi cào cả bình luận
+này. Cào cả bình luận video. Ví dụ anh
+em đang nghiên cứu cái kênh đây. Anh em
+đang nghiên cứu cái cái ngách người quen
+này chẳng hạn nhá. Đấy, cái thằng này,
+video của nó chẳng hạn. 2,7 triệu view.
+Sau đó thì mình sẽ cào được cả cái những
+cái bình luận ở đây. Đó, cào bình luận ở
+đây để mình xem là khán giả nó đang mong
+muốn gì để mình làm những cái nội dung
+tiếp theo. Kiểu như thế thì thường thì
+một tháng rồi không làm mình làm theo
+những cái video nó tầm một tuần trở về
+đây nó đang nổ để mình làm theo.
+>> Đó,
+về con tool này nó cũng được nhá. Sau đó
+thì anh em có thể à tìm chen này xong là
+tạo dream 100 nghiên cứu và theo dõi đối
+thủ. Thì mình cái này ví dụ vì cái cái
+tool này mình mình muốn có nhiều chức
+năng để hỗ trợ cho anh em thìể anh em đỡ
+được cái chi phí mua tool. Thường là các
+bên lớn họ khôn lắm họ sẽ tách nhỏ ra
+tạo voi riêng nhá. Ấy xong tìm chen
+riêng xong là gì ấy nhỉ?
+Auto cáp cắt riêng rồi các kiểu riêng
+như vậy vì nếu mà tính ra chi phí rất
+nhiều tiền bây giờ để xây kênh không hề
+không hề rẻ đâu. Anh em chưa làm ra tiền
+đã tiêu rất nhiều tiền rồi chị khóa học
+đó. Cắt ảnh này ví dụ anh em mà muốn lấy
+một cái video đối thủ về mà muốn để cho
+ai nó phân tích ấy thì nếu mà mình bình
+thường mình cắt bằng bằng AI thì bảo nó
+phân tích ra thì có một nó nó đốt to
+cườn nhiều lắm đúng không? Thì mình đưa
+vào đây mình mình cắt bảo nó cắt theo
+một giây theo farm 1 giây đấy. 2 giây 3
+giây thì mình cài đặt vào đây xong nó
+cắt ra đây. Đấy xong anh em muốn ai nó
+phân tích cái cái cảnh nào thì mình đưa
+vào đó cho nó phân tích chứ để mà phân
+tích toàn bộ video dài thì hơi hơi
+khoai. Đó còn tiếp nữa thì có cái chức
+năng đây. Nếu mà anh em muốn lấy cái
+file TXT thì anh em sử dụng cái thằng
+dipgram nó lấy file TXT cực kỳ chuẩn
+nhá. Đấy thì cái thằng digram này nó cho
+anh em mỗi anh em là 200 đô miễn phí
+này. Đấy bình thường anh em phải lên
+trên web của nó thì anh em làm và nó lấy
+file TXT rồi nhiều của Việt Nam có Nhật
+Hàn Mỹ có hết rồi anh em nó chạy mình để
+code để anh em chạy cả một cái forder vì
+anh em download cả kênh cái đây cái cái
+tool của mình nó download được cả một
+kênh nhá anh em cho cả một kênh vào cho
+nhanh anh em download trong cái đây
+nó không chỉ lấy video đâu nó sẽ lấy này
+lấy video này lấy cả file audio để anh
+em đưa thì lấy cái file skip đấy ảnh
+thăm luôn đấy Đấy
+và nó còn lọc được cả cái độ view từ
+thấp đến cao,
+từ cao xuống thấp. Đây mình cho mình
+chọn và nó lọc từ 100k view trở lên hay
+như nào đấy thì anh em có thể lọc đó nó
+tải. Tải xong thì anh em lấy skip ở đây
+hoặc dùng cái thằng
+Quipper X cũng được. Được chưa anh em?
+Cái cái thằng này thì nó cũng nhanh và
+nó lấy được cả file TXT lẫn file SRT.
+Đấy đây anh em có thể dùng theo tùy từng
+máy. Cấu hình máy cao hay thấp.
+Thì cái gì mà mình chưa xong thì mình sẽ
+chưa chia sẻ với cái thằng đồng tiếng
+mình chưa code xong. Đó
+edit video này.
+Video dài chuyển sang video dọc này
+chẳng đấy ạ. Nói chung nó sẽ rất nhiều
+tính năng hay cho anh em và nó chỉ ở
+trong một công cụ thôi. Sau này mình nếu
+mà mình thương mại thì mình giá cũng rất
+ok cho anh em chơi đấy. Anh em không
+phải mua quá nhiều công cụ. Và mình đây
+mình đã tích hợp thêm cả cái phần à
+phần giọng đọc TTS ấy anh em. Nếu mà anh
+em mua cái của La Voi La Voice tiếp rất
+tốt. La Voi nó đang có chương trình giảm
+giá thì anh em có thể mua nhá. Giảm giá
+nhân dịp sinh nhật ấy thì anh em có thể
+mua này. Đấy thì mình tích hợp API anh
+em chỉ điền cái cây API của anh em ở đây
+xong đó là anh em chơi thôi. Đấy pết văn
+bản vào đấy.
+Ok nhá. cho mình anh em nào mới làm
+video ngắn ấy thì anh em có thể sử dụng
+cái thằng Vinil nàyấy một trong những
+công cụ khá tốt của Việt Nam hoặc
+thì có Trung Quốc của Xiaomi anh được
+anh em Việt Nam đang đánh giá rất cao.
+Còn cái đây hình như của bạn Bảo hay bạn
+Bảo Khanh hay gì ở Việt Nam làm cũng rất
+tâm huyết đấy. Một bác sĩ rồi đấy.
+Cái bà nó ra cái bản B3 Turbo mình thấy
+giọng ok.
+thì đã có hai cái công cụ miễn phí cho
+anh em và có thể nếu anh em cấu hình từ
+3060
+12 GB RAM thì anh em có thể chạy được cả
+video giải nhiều anh em người ta ứng
+dụng để tạo ra những cái câu chuyện
+story
+làm YouTube Việt Nam đấy hai cái này đọc
+dọng Việt Nam ok còn anh em máy yếu thì
+tốt nhất nên dùng La Voice VB đấu nối
+API vào. Đó và cái hay nữa ấy là cái
+tool này mình sẽ để mỗi chức năng này
+đều có API. Abi thì nó là cái cổng kết
+nối thôi. Thì để thằng Code này nó sẽ
+gọi ra đấy. Nó gọi ra để nó sai vặt. Có
+nghĩa là như nào? Có nghĩa là ví dụ như
+mình muốn ở đây tao gửi ở đây tao cho
+mày một cái link này của kênh đối thủ
+hôm nay nó đang được đề xuất thì mày hãy
+lấy hết dữ liệu sang cho tao.
+Đấy thì anh em có thể là kết nối cái
+thằng Cloud Decode này với thằng
+Notebook LM nhá. Ấy thì anh em nghiên
+cứu đối thủ lại chia sẻ tiếp cho anh em
+một cái key nữa là mình kết nối với
+thằng Notebook LM của thằng Google. Sau
+đó thì là mình sẽ đẩy dữ liệu qua lại
+mang sang thằng notebook lm đấy phân
+tích tạo một cái skillọ là phân tích gửi
+dữ liệu đi nhận dữ liệu về thì thằng
+notebook nó sẽ khi phân tích nó sẽ chỉ
+lấy những cái dữ liệu đầu vào để nó phân
+tích thôi thì cái kết quả từ cái dữ liệu
+mình đưa vào nó sẽ chất hơn là anh em
+phân tích mà nó hổ đốn bên ngoài nó
+không có cái dữ liệu chuẩn và nó không
+phân tích ra ngoài, nó chỉ phân tích
+trong tệp đây thôi thì cái phân tích của
+mình nó sẽ chuẩn hơn và nó đỡ được được
+cái cái cái token của thằng cloud này
+cái anh em dùng clou biết ấy thì nó dùng
+một tí nữa hết bố là toen rồi không làm
+được cái gì được ấy mà đây mình mình
+đang dùng bản max đây rồi còn vẫn còn bị
+limit đấy nên anh em dùng bản pro nữa
+thì thì hỏi tí thôi đã hết rồi ngồi chơi
+đó thì mình kết hợp cái thằng notebook
+đấy sau đó thì là mình dùng cái thằng
+này dùng cái thằng cloud nó chỉ là bộ
+não điều hành thôi sau đó nó sẽ sai vặt
+cái thằng tool này đấy nó kết nối với
+API mà nó sai vặt chẳng hạn như là nó
+khi mình đã tìm chen xong rồi ở trên
+thằng này rồi mình đã có cái danh sách
+link rồi thì mình gửi cho nó và bây giờ
+nhiệm vụ của mày là từ những cái link
+này mày sẽ đi ờ vào API của tool ví dụ
+đây mình tool Goa chẳng hạn. Mình hãy
+lấy dữ liệu này, lấy file SRT này, file
+TXT này, xong đẩy lên notebook NM để
+phân tích và có cái pom phân tích. Phân
+tích sau ra kết quả rồi thì bắt đầu là
+sẽ làm cái nội dung content. Đấy dùng
+content mà có khả năng được vi đấy bắt
+nó đi lấy bình luận của cái video đấy.
+Sau đó mình phân tích là khán giả đang
+mong muốn gì ở video tiếp theo thì mình
+sẽ làm những video tiếp theo. Thế cái
+cái ông này chỉ cần kết hợp với ông này
+và cái thằng cloud thì thằng mà codex
+thì cũng làm được nhưng mà thằng clou
+thì nó mình thì hay qu clou thì nó làm
+nó chuẩn hơn đó. Ok thì chém gió với anh
+em tí về YouTube tiện thì chia sẻ thì
+mình thì thựt ra mình cũng chỉ là một
+nông dân yêu AI và yêu công nghệ thôi.
+Năm nay mình 41 tuổi và mình vẫn thích
+học về những cái này thì tiện chia sẻ
+với anh em chứ mình cũng những cái chia
+sẻ mình về của mình ấ thì cũng chưa chắc
+là đã giúp anh em kiếm được ra tiền đấy.
+Chỉ giúp anh em có thể có những cái công
+cụ làm nhanh hơn thôi. Đ và anh em a xem
+video trên mạng thì tốt nhất là cứ xem
+mấy của ông mấy thằng của Tây ấy thì nó
+anh em Việt Nam thì nó có hay kiểu như
+là lấy lại content rồi làm lại thôi. Và
+nhiều cái video của Tây thì nó cũng chỉ
+nó dấu bài nhá. Nó cũng chứ không
+[hắng giọng] phải là chia sẻ hết đâu.
+Tây nó còn phát triển trước mình th
+nhưng mà nhì nhìn qua video này thì anh
+em thấy là nó so với cách nào của mình
+thì nó còn chậm hơn rất nhiều đúng
+không? Của mình thì nó tự động đồng bộ
+luôn. Đây nó kéo bằng tay. Đấy
+và cái tool auto cắp cắt thì anh em Việt
+Nam mình bán từ hồi 2025 2024 rồi và nó
+tự động đồng bộ rồi. Nó không phải kéo
+tay như này đâu. Ok cảm ơn anh em đã
+theo dõi nhá. Anh em nhớ anh em a mình
+sẽ để link tải v cái phần app này ở dưới
+bình luận nhá. Và nhóm này dưới bình
+luận thì anh em vào giao lưu cho vui.
+Cái nhóm này thì là mình sẽ chỉ để thông
+báo thôi. Còn anh em muốn chém gió hay
+là giao lưu, hỏi đáp gì thì anh em vào
+cái group nhá. Group ở trên Facebook
+mình cũng đã ghim ở trong cái cái file
+đọc đấy rồi. Anh em vào đó sẽ thấy để
+các cộng kết nối với mình. Ok, cảm ơn
+anh em nhá.
