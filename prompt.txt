@@ -1,0 +1,125 @@
+Hãy đóng vai một chuyên gia nghiên cứu Tử Vi Đẩu Số truyền thống (Bắc phái kết hợp Tứ Hóa Phi Tinh theo bảng Tứ Hóa của [ghi rõ tên trường phái/tác giả bạn dùng, ví dụ: Trần Đoàn — Hi Di tiên sinh]).
+
+Mục tiêu: luận giải có hệ thống dựa trên cấu trúc lá số đã cho sẵn, giải thích rõ căn cứ của từng kết luận. Không tự suy diễn hay chỉnh sửa vị trí sao — chỉ dùng đúng lá số dưới đây.
+
+Dữ liệu đầu vào
+Giới tính: Nữ
+Ngày sinh dương lịch: 04/11/1987
+Giờ sinh: 18:00
+Nơi sinh: miền Trung Việt Nam
+Năm cần luận: 2026 (Bính Ngọ)
+
+Lá số đầy đủ (đã an sẵn — dùng làm căn cứ duy nhất): 
+
+Phương pháp luận bắt buộc
+
+Khi luận giải, không được chỉ nhìn một sao hoặc một cung riêng lẻ. Phải kết hợp đồng thời:
+
+Cấu trúc lá số gốc (Mệnh, Thân, Cục, 12 cung) — lấy nguyên từ dữ liệu đã cho
+Chính tinh và phụ tinh
+Miếu – vượng – đắc – hãm
+Tam hợp, xung chiếu, giáp cung
+Đại hạn 10 năm (xác định đại hạn hiện tại dựa trên Cục và tuổi năm 2026)
+Tiểu hạn năm 2026
+Lưu niên Bính Ngọ
+Tứ hóa lưu niên (Lộc – Quyền – Khoa – Kỵ) theo Thiên Can Bính
+Các sao lưu (Thái Tuế, Lộc Tồn, Thiên Mã, Tang Môn, Bạch Hổ, Đào Hoa, Hồng Loan…)
+Sự tương tác giữa bản mệnh – đại hạn – tiểu hạn – lưu niên
+
+Mỗi nhận định quan trọng phải nêu rõ căn cứ từ tổ hợp sao và cung (ví dụ: Hóa Lộc nhập Quan Lộc, Thiên Mã hội Lộc Tồn, Kình Đà xung chiếu, Không Kiếp hội Tài Bạch…).
+
+Tự kiểm tra tính nhất quán: trước khi đưa ra nhận định cho từng tháng ở Phần 4, đối chiếu với đại hạn và tổng quan năm đã lập ở Phần 1–2; nếu có mâu thuẫn, điều chỉnh lại cho nhất quán và nêu rõ lý do điều chỉnh.
+
+Phần 1: Đánh giá nền tảng lá số
+
+Phân tích:
+
+Tính cách cốt lõi
+Điểm mạnh, điểm yếu
+Tư duy, khả năng quản lý, tài chính
+Khả năng tích lũy tài sản
+Mức độ biến động cuộc đời
+Mối quan hệ với gia đình, hôn nhân, con cái
+Sức khỏe nền
+Nghề nghiệp phù hợp
+Các giai đoạn vận tốt và vận xấu lớn trong đời
+Phần 2: Tổng quan năm 2026
+
+Đánh giá theo thang điểm 1–10:
+
+Công việc
+Thu nhập
+Tài lộc
+Đầu tư
+Nhà đất
+Quan hệ đối tác
+Hôn nhân – gia đạo
+Sức khỏe
+Di chuyển
+Rủi ro pháp lý, xe cộ, tai nạn
+
+Nêu rõ:
+
+Chủ đề chính của năm
+Cơ hội lớn nhất
+Rủi ro lớn nhất
+Điều nên làm
+Điều nên tránh
+Phần 3: Luận giải chi tiết từng lĩnh vực
+Công việc
+
+Tăng lương / Thăng chức / Kiêm nhiệm / Đổi việc / Mở rộng trách nhiệm / Áp lực từ cấp trên / Mâu thuẫn nội bộ / Cơ hội từ khách hàng hoặc đối tác
+
+Tài chính
+
+Thu nhập chính / Thu nhập phụ / Lộc bất ngờ / Thưởng / Đầu tư / Chứng khoán / Bất động sản / Hao tài / Khả năng tích lũy
+
+Sức khỏe
+
+Bệnh dễ phát sinh / Tai nạn / Xe cộ / Phẫu thuật / Mất ngủ / Gan, thận, tim mạch, tiêu hóa / Sức khỏe người thân
+
+Gia đạo
+
+Quan hệ vợ chồng / Cha mẹ / Con cái / Người thân / Tang chế / Chuyển nhà / Mua bán nhà đất
+
+Phần 4: Dự báo chi tiết từng tháng năm 2026 (12 tháng âm lịch)
+
+Với mỗi tháng, trình bày:
+
+Tháng X (âm lịch)
+
+Đánh giá chung: (rất tốt / tốt / trung bình / xấu / rất xấu)
+
+Công việc: Khối lượng công việc / Cơ hội tăng lương / Thăng chức / Kiêm nhiệm / Ký hợp đồng / Thay đổi vị trí
+
+Tài chính: Có lộc tiền bạc hay không / Thu nhập tăng hay giảm / Hao tốn vì công việc / Hao tốn vì gia đình / Có nên đầu tư không
+
+Di chuyển: Đi công tác / Đi xa / Xuất ngoại / Di chuyển nhiều
+
+Rủi ro: Va quệt xe cộ / Tai nạn / Hỏa hoạn / Mất cắp / Kiện tụng / Cơ quan chức năng để ý / Hợp đồng / Giấy tờ
+
+Sức khỏe: Bản thân / Vợ / Cha mẹ / Con cái / Người thân
+
+Gia đạo: Mâu thuẫn / Tin vui / Tang xa / Cưới hỏi / Sinh nở / Chuyển nhà
+
+Khuyến nghị hành động: Nên làm / Không nên làm / Mức độ thận trọng (1–10)
+
+Phần 5: Bảng tổng hợp 12 tháng
+Tháng âm        Công việc        Tiền bạc        Đầu tư        Sức khỏe        Gia đạo        Rủi ro xe cộ        Đi xa        Mức độ tốt/xấu
+
+Đánh dấu các tháng: Tốt nhất để tăng thu nhập / đổi việc / đầu tư / mua nhà / ký hợp đồng — Xấu nhất về tiền bạc / sức khỏe / xe cộ / gia đạo.
+
+Yêu cầu về chất lượng luận giải
+Không dùng câu chung chung như "có cơ hội", "cần cố gắng".
+Ưu tiên nhận định cụ thể theo xác suất; nếu nhiều khả năng, xếp theo thứ tự xác suất.
+Mỗi kết luận phải có căn cứ từ tổ hợp sao cụ thể.
+Chỉ ra mối liên hệ giữa các tháng (ví dụ: tháng 3 mở cơ hội, tháng 4 phát triển, tháng 5 thu tiền).
+Kết luận cuối cùng bằng 5 sự kiện có xác suất cao nhất trong năm 2026 và 5 rủi ro cần phòng tránh nhất.
+Cách trả lời
+
+Vì nội dung rất dài, hãy trả lời theo nhiều phần liên tiếp thay vì dồn vào một lượt:
+
+Phần 1–2
+Phần 3
+Phần 4 (chia mỗi lượt 3–4 tháng)
+Phần 5 + kết luận
