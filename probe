@@ -1,31 +1,85 @@
-PS D:\123\Tools\IQR3> ./run-probe.bat analyze --count 1
-[run] Khoi chay iqr_transfer.probe analyze --count 10...
-capture00-mon1: seed 484090522, scale 1.000 x 1.000
-capture01-mon1: seed 484090524, scale 1.000 x 1.000
-capture02-mon1: seed 484090527, scale 1.000 x 1.000
-capture03-mon1: seed 484090529, scale 1.000 x 1.000
-capture04-mon1: seed 484090531, scale 1.000 x 1.000
-capture05-mon1: seed 484090533, scale 1.000 x 1.000
-capture06-mon1: seed 484090535, scale 1.000 x 1.000
-capture07-mon1: seed 484090538, scale 1.000 x 1.000
-capture08-mon1: seed 484090540, scale 1.000 x 1.000
-capture09-mon1: seed 484090542, scale 1.000 x 1.000
+PS D:\123\Tools\IQR3> ./run-probe.bat analyze --count 20 --interval-ms 300
+[run] Khoi chay iqr_transfer.probe analyze --count 20 --interval-ms 300...
+capture00-mon1: seed 951224033, scale 1.000 x 1.000
+capture01-mon1: seed 951224051, scale 1.000 x 1.000
+capture02-mon1: seed 951224068, scale 1.000 x 1.000
+capture03-mon1: seed 951224085, scale 1.000 x 1.000
+capture04-mon1: seed 951224102, scale 1.000 x 1.000
+capture05-mon1: seed 951224119, scale 1.000 x 1.000
+capture06-mon1: seed 951224135, scale 1.000 x 1.000
+capture07-mon1: seed 951224152, scale 1.000 x 1.000
+capture08-mon1: seed 951224170, scale 1.000 x 1.000
+capture09-mon1: seed 951224187, scale 1.000 x 1.000
+capture10-mon1: seed 951224203, scale 1.000 x 1.000
+capture11-mon1: seed 951224221, scale 1.000 x 1.000
+capture12-mon1: seed 951224238, scale 1.000 x 1.000
+capture13-mon1: seed 951224255, scale 1.000 x 1.000
+capture14-mon1: seed 951224271, scale 1.000 x 1.000
+capture15-mon1: seed 951224288, scale 1.000 x 1.000
+capture16-mon1: seed 951224305, scale 1.000 x 1.000
+capture17-mon1: seed 951224322, scale 1.000 x 1.000
+capture18-mon1: seed 951224339, scale 1.000 x 1.000
+capture19-mon1: seed 951224354, scale 1.000 x 1.000
 
-Frames analysed: 10
+Frames analysed: 20
 Estimate for a 1920x1080 window (rough, before speed gains):
 
 cell  mode   bits       SER       BER  KB/screen  verdict
   1px  gray2     1     0.00%    0.000%      223.3  OK
   1px  gray4     2     0.00%    0.000%      446.5  OK
-  1px  gray8     3     1.45%    0.484%      565.7  marginal
+  1px  gray8     3     0.00%    0.000%      669.8  OK
+  1px  rgb8      3     0.00%    0.000%      669.8  OK
+  2px  gray2     1     0.00%    0.000%       55.8  OK
+  2px  gray4     2     0.00%    0.000%      111.6  OK
+  2px  gray8     3     0.21%    0.069%      163.7  OK
+  2px  rgb8      3     0.00%    0.000%      167.4  OK
+  3px  gray2     1     0.00%    0.000%       24.8  OK
+  3px  gray4     2     0.00%    0.000%       49.6  OK
+  3px  gray8     3     0.07%    0.022%       73.9  OK
+  3px  rgb8      3     0.00%    0.000%       74.4  OK
+  4px  gray2     1     0.00%    0.000%       14.0  OK
+  4px  gray4     2     0.00%    0.000%       27.9  OK
+  4px  gray8     3     0.00%    0.000%       41.9  OK
+  4px  rgb8      3     0.00%    0.000%       41.9  OK
+
+Current QR baseline (V40-L, >= 2 px/module): 28.3 KB/screen            ./run-probe.bat analyze --count 20 --interval-ms 300
+[run] Khoi chay iqr_transfer.probe analyze --count 20 --interval-ms 300...
+capture00-mon1: seed 951224638, scale 1.000 x 1.000
+capture01-mon1: seed 951224655, scale 1.000 x 1.000
+capture02-mon1: seed 951224673, scale 1.000 x 1.000
+capture03-mon1: seed 951224689, scale 1.000 x 1.000
+capture04-mon1: seed 951224708, scale 1.000 x 1.000
+capture05-mon1: seed 951224725, scale 1.000 x 1.000
+capture06-mon1: seed 951224742, scale 1.000 x 1.000
+capture07-mon1: seed 951224761, scale 1.000 x 1.000
+capture08-mon1: seed 951224779, scale 1.000 x 1.000
+capture09-mon1: seed 951224796, scale 1.000 x 1.000
+capture10-mon1: seed 951224814, scale 1.000 x 1.000
+capture11-mon1: seed 951224831, scale 1.000 x 1.000
+capture12-mon1: seed 951224847, scale 1.000 x 1.000
+capture13-mon1: seed 951224866, scale 1.000 x 1.000
+capture14-mon1: seed 951224885, scale 1.000 x 1.000
+capture15-mon1: seed 951224902, scale 1.000 x 1.000
+capture16-mon1: seed 951224919, scale 1.000 x 1.000
+capture17-mon1: seed 951224938, scale 1.000 x 1.000
+capture18-mon1: seed 951224953, scale 1.000 x 1.000
+capture19-mon1: seed 951224972, scale 1.000 x 1.000
+
+Frames analysed: 20
+Estimate for a 1920x1080 window (rough, before speed gains):
+
+cell  mode   bits       SER       BER  KB/screen  verdict
+  1px  gray2     1     0.00%    0.000%      223.3  OK
+  1px  gray4     2     0.00%    0.000%      446.5  OK
+  1px  gray8     3     0.82%    0.275%      610.2  OK
   1px  rgb8      3     0.00%    0.000%      669.7  OK
   2px  gray2     1     0.00%    0.000%       55.8  OK
   2px  gray4     2     0.00%    0.000%      111.6  OK
-  2px  gray8     3     0.15%    0.052%      164.6  OK
+  2px  gray8     3     6.80%    2.268%       52.9  marginal
   2px  rgb8      3     0.00%    0.000%      167.4  OK
   3px  gray2     1     0.00%    0.000%       24.8  OK
   3px  gray4     2     0.00%    0.000%       49.6  OK
-  3px  gray8     3     0.02%    0.007%       74.2  OK
+  3px  gray8     3     0.10%    0.034%       73.6  OK
   3px  rgb8      3     0.00%    0.000%       74.4  OK
   4px  gray2     1     0.00%    0.000%       14.0  OK
   4px  gray4     2     0.00%    0.000%       27.9  OK
@@ -33,38 +87,4 @@ cell  mode   bits       SER       BER  KB/screen  verdict
   4px  rgb8      3     0.00%    0.000%       41.9  OK
 
 Current QR baseline (V40-L, >= 2 px/module): 28.3 KB/screen
-PS D:\123\Tools\IQR3> ./run-probe.bat analyze --count 10
-[run] Khoi chay iqr_transfer.probe analyze --count 10...
-capture00-mon1: seed 484090551, scale 1.000 x 1.000
-capture01-mon1: seed 484090553, scale 1.000 x 1.000
-capture02-mon1: seed 484090556, scale 1.000 x 1.000
-capture03-mon1: seed 484090558, scale 1.000 x 1.000
-capture04-mon1: seed 484090560, scale 1.000 x 1.000
-capture05-mon1: seed 484090562, scale 1.000 x 1.000
-capture06-mon1: seed 484090564, scale 1.000 x 1.000
-capture07-mon1: seed 484090567, scale 1.000 x 1.000
-capture08-mon1: seed 484090568, scale 1.000 x 1.000
-capture09-mon1: seed 484090571, scale 1.000 x 1.000
-
-Frames analysed: 10
-Estimate for a 1920x1080 window (rough, before speed gains):
-
-cell  mode   bits       SER       BER  KB/screen  verdict
-  1px  gray2     1     0.00%    0.000%      223.3  OK
-  1px  gray4     2     0.00%    0.000%      446.5  OK
-  1px  gray8     3     1.45%    0.484%      565.7  marginal
-  1px  rgb8      3     0.00%    0.001%      669.5  OK
-  2px  gray2     1     0.00%    0.000%       55.8  OK
-  2px  gray4     2     0.00%    0.000%      111.6  OK
-  2px  gray8     3     0.16%    0.054%      164.5  OK
-  2px  rgb8      3     0.00%    0.000%      167.4  OK
-  3px  gray2     1     0.00%    0.000%       24.8  OK
-  3px  gray4     2     0.00%    0.000%       49.6  OK
-  3px  gray8     3     0.02%    0.006%       74.3  OK
-  3px  rgb8      3     0.00%    0.000%       74.4  OK
-  4px  gray2     1     0.00%    0.000%       14.0  OK
-  4px  gray4     2     0.00%    0.000%       27.9  OK
-  4px  gray8     3     0.00%    0.000%       41.9  OK
-  4px  rgb8      3     0.00%    0.000%       41.9  OK
-
-Current QR baseline (V40-L, >= 2 px/module): 28.3 KB/screen
+PS D:\123\Tools\IQR3>
