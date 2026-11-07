@@ -1,7 +1,13 @@
-1 cURL mac dinh: LOI [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
+A server key http, co timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
 
-2 cURL bo SSL: LOI [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
+B server key http, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
 
-3 LuaSocket: OK http=Operation already in progress body=nil
+C github http, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
 
-4 lenh curl: OK body=
+D github https, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
+
+E github https, co timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
+
+F version: libcurl/8.8.1-DEV OpenSSL/3.4.0 zlib/1.2.11
+
+G which curl: true 
