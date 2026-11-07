@@ -1,15 +1,7 @@
-11-07 13:24:05 KIỂM TRA MÀN: LostConnection
-Kết quả: KHÔNG KHỚP (1/3 vị trí lệch)
-Bot đang nhận là: Commond
+1 cURL mac dinh: LOI [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
 
-#1 (746, 463)  KHỚP
-   Cấu hình: 347907  ±5
-   Thực tế:  413700  lệch 1.3
+2 cURL bo SSL: LOI [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
 
-#2 (953, 271)  KHỚP
-   Cấu hình: 3157807  ±5
-   Thực tế:  3223343  lệch 2.0
+3 LuaSocket: OK http=Operation already in progress body=nil
 
-#3 (936, 303)  LỆCH
-   Cấu hình: 2171427  ±5
-   Thực tế:  2171428  lệch 6.2
+4 lenh curl: OK body=
