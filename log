@@ -1,13 +1,20 @@
-A server key http, co timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
-
-B server key http, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
-
-C github http, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
-
-D github https, khong timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
-
-E github https, co timeout: LOI o buoc perform [CURL-EASY][BAD_FUNCTION_ARGUMENT] A libcurl function was given a bad argument (43)
-
-F version: libcurl/8.8.1-DEV OpenSSL/3.4.0 zlib/1.2.11
-
-G which curl: true 
+11-13 22:09:12 ...mobile/Library/AutoTouch/Library/LuaLibraries/socket.lua:12: module 'socket.core' not found:
+	no field package.preload['socket.core']
+	no file '/usr/local/share/lua/5.3/socket/core.lua'
+	no file '/usr/local/share/lua/5.3/socket/core/init.lua'
+	no file '/usr/local/lib/lua/5.3/socket/core.lua'
+	no file '/usr/local/lib/lua/5.3/socket/core/init.lua'
+	no file './socket/core.lua'
+	no file './socket/core/init.lua'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Library/LuaLibraries/socket/core.lua'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Library/LuaLibraries/socket/core'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Scripts/socket/core.lua'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Scripts/socket/core'
+	no file '/usr/local/lib/lua/5.3/socket/core.so'
+	no file '/usr/local/lib/lua/5.3/loadall.so'
+	no file './socket/core.so'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Library/lib/socket/core.so'
+	no file '/usr/local/lib/lua/5.3/socket.so'
+	no file '/usr/local/lib/lua/5.3/loadall.so'
+	no file './socket.so'
+	no file '/var/jb/var/mobile/Library/AutoTouch/Library/lib/socket.so'
